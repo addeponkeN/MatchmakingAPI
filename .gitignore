@@ -1,0 +1,16 @@
+/.vs
+/.idea
+/Rovio.Matchmaking/obj
+/Rovio.Matchmaking/bin
+
+/Rovio.Matchmaking.Api/obj
+/Rovio.Matchmaking.Api/bin
+
+/Rovio.Matchmaking.Client/obj
+/Rovio.Matchmaking.Client/bin
+
+/Rovio.Matchmaking.Models/obj
+/Rovio.Matchmaking.Models/bin
+
+/Rovio.Utility/obj
+/Rovio.Utility/bin
