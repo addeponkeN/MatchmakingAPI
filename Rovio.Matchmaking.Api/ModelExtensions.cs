@@ -29,32 +29,17 @@ public static class ModelExtensions
         return list.Select(item => item.ToPlayerModel()).ToList();
     }
 
-    public static MatchModel ToModel(this Session session)
+    public static SessionModel ToModel(this Session session)
     {
-        return new MatchModel()
+        return new SessionModel()
         {
-            Key = session.MatchId,
+            Key = session.Id,
             Players = session.Players.ToPlayerModels()
         };
     }
 
-    public static IEnumerable<MatchModel> ToModels(this IEnumerable<Session> matches)
+    public static IEnumerable<SessionModel> ToModels(this IEnumerable<Session> sessions)
     {
-        return matches.Select(match => match.ToModel());
+        return sessions.Select(session => session.ToModel());
     }
-
-
-    // public static MatchDto ToDto(this Match match)
-    // {
-    // return new MatchDto()
-    // {
-    // Id = match.MatchId,
-    // Players = match.Players.ToPlayerModels()
-    // };
-    // }
-
-    // public static IEnumerable<MatchDto> ToDto(this IEnumerable<Match> matches)
-    // {
-    // return matches.Select(match => match.ToDto());
-    // }
 }

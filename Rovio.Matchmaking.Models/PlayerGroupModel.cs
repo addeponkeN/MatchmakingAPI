@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Rovio.Matchmaking.Models;
 
 /// <summary>
@@ -5,5 +7,6 @@ namespace Rovio.Matchmaking.Models;
 /// </summary>
 public record PlayerGroupModel
 {
-    public IEnumerable<PlayerModel> Members { get; init; }
+    [JsonPropertyName(PropertyAbbreviations.PlayerModelCollection)]
+    public IEnumerable<PlayerModel> Players { get; init; }
 }

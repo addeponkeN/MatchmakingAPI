@@ -43,7 +43,7 @@ public class Matchmaker
 
     public Session CreateSession()
     {
-        return new Session(this) {MatchId = _idGenerator.GetId()};
+        return new Session(this) {Id = _idGenerator.GetId()};
     }
 
     public void AddPlayer(Player player)
@@ -77,7 +77,7 @@ public class Matchmaker
 
         //  debug
         var sw = Stopwatch.StartNew();
-        int startedMatchesCount = 0;
+        int startedSessionsCount = 0;
         
         for(int i = 0; i < length; i++)
         {
@@ -89,25 +89,25 @@ public class Matchmaker
             }
 
             var container = GetContainer(player.Continent);
-            var match = container.GetCurrentSession();
+            var session = container.GetCurrentSession();
             
-            match.AddPlayer(player);
+            session.AddPlayer(player);
 
-            if(match.IsReady())
+            if(session.IsReady())
             {
-                container.SetSessionReady(match);
-                match.Start();
-                startedMatchesCount++;
+                container.SetSessionReady(session);
+                session.Start();
+                startedSessionsCount++;
             }
         }
 
         //  debug
         sw.Stop();
         Console.WriteLine(
-            $"time: {sw.Elapsed.TotalMilliseconds}ms  |  '{startedMatchesCount}' matches started  |  '{length}' players matchmaked");
+            $"time: {sw.Elapsed.TotalMilliseconds}ms  |  '{startedSessionsCount}' sessions started  |  '{length}' players matched");
     }
 
-    public IEnumerable<Session> PopReadyMatches(Continents continent)
+    public IEnumerable<Session> PopReadySessions(Continents continent)
     {
         var container = GetContainer(continent);
         return container.PopReadySessions();

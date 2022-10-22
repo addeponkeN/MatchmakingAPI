@@ -5,12 +5,12 @@ using Rovio.Utility;
 namespace Rovio.Matchmaking.Models;
 
 /// <summary>
-/// Match model.
+/// Session model.
 /// Each property has a JsonPropertyName abbreviation to reduce bandwidth usage.
 /// </summary>
 /// <para>Key = k</para>
 /// <para>Players = p</para>
-public record MatchModel
+public record SessionModel
 {
     /// <summary>
     /// Unique id/key of the match
@@ -22,7 +22,7 @@ public record MatchModel
     /// <summary>
     /// Players that have been assigned to this match
     /// </summary>
-    [JsonPropertyName(PropertyAbbreviations.MatchModelPlayers)]
+    [JsonPropertyName(PropertyAbbreviations.PlayerModelCollection)]
     public IEnumerable<PlayerModel> Players { get; init; }
     
 }

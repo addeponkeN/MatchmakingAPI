@@ -5,21 +5,21 @@ using Rovio.Utility;
 namespace Rovio.Matchmaking.Models;
 
 /// <summary>
-/// This contains info that is needed to add a match back into the matchmaker
-/// and add the missing amount of players to the match.
-/// High priority match. 
+/// This contains info that is needed to add a session back into the matchmaker
+/// and add the missing amount of players to the session.
+/// High priority session. 
 /// </summary>
-public class MissingPlayerMatchModel
+public class MissingPlayerSessionModel
 {
     /// <summary>
-    /// Unique id/key of the match that is missing player(s)
+    /// Unique id/key of the session that is missing player(s)
     /// </summary>
     [Required]
     [JsonPropertyName(PropertyAbbreviations.UniqueKey)]
     public UniqueKey Key { get; set; }
 
     /// <summary>
-    /// The location of the match
+    /// The location of the session
     /// </summary>
     [Required]
     [JsonPropertyName(PropertyAbbreviations.Continent)]

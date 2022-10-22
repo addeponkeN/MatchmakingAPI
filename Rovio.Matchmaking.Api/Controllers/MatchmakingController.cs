@@ -67,7 +67,7 @@ public class MatchmakingController : ControllerBase
         }
 
         //  validate all members
-        foreach(var p in groupModel.Members)
+        foreach(var p in groupModel.Players)
         {
             if(!p.Key.IsValid())
             {
@@ -81,7 +81,7 @@ public class MatchmakingController : ControllerBase
         }
 
         //  add members to matchmaking
-        foreach(var p in groupModel.Members)
+        foreach(var p in groupModel.Players)
         {
             _mm.AddPlayer(p.ToMatchmakePlayer());
         }
@@ -90,22 +90,22 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Get all matches that are ready to be started
+    /// Get all sessions that are ready to be started
     /// </summary>
-    /// <param name="continent">The continent to get matches from</param>
-    /// <returns>List of all ready matches</returns>
-    [HttpGet("matches/{continent}")]
-    public async Task<ActionResult<ReadyMatchesModel>> GetReadyMatches(Continents continent)
+    /// <param name="continent">The continent to get sessions from</param>
+    /// <returns>List of all ready sessions</returns>
+    [HttpGet("sessions/{continent}")]
+    public async Task<ActionResult<ReadySessionsModel>> GetReadySessions(Continents continent)
     {
-        //  Pop all ready matches in the continent and convert to model
-        var matches = _mm.PopReadyMatches(continent).ToModels();
+        //  Pop all ready sessions in the continent and convert to model
+        var sessions = _mm.PopReadySessions(continent).ToModels();
 
-        var model = new ReadyMatchesModel()
+        var model = new ReadySessionsModel()
         {
-            Matches = matches
+            Sessions = sessions
         };
 
-        Log.Debug($"Popped '{model.Matches.Count()}' matches");
+        Log.Debug($"Popped '{model.Sessions.Count()}' sessions");
 
         return Ok(model);
     }
@@ -113,33 +113,33 @@ public class MatchmakingController : ControllerBase
     /// <summary>
     /// Adds a player to the matchmaking queue
     /// </summary>
-    /// <param name="matchModel">Player to add</param>
+    /// <param name="sessionModel">Player to add</param>
     /// <returns>API result</returns>
-    [HttpPost("players/add/{matchModel}")]
-    public async Task<ActionResult> AddMissingPlayerMatch(MissingPlayerMatchModel matchModel)
+    [HttpPost("players/add/{sessionModel}")]
+    public async Task<ActionResult> AddMissingPlayerSession(MissingPlayerSessionModel sessionModel)
     {
-        if(!matchModel.Key.IsValid())
+        if(!sessionModel.Key.IsValid())
         {
-            return Problem(title: "Invalid match id");
+            return Problem(title: "Invalid session id");
         }
         
-        if(matchModel.Continent == Continents.None)
+        if(sessionModel.Continent == Continents.None)
         {
             return Problem(title: "Invalid continent");
         }
         
-        if(matchModel.MissingPlayersCount <= 0)
+        if(sessionModel.MissingPlayersCount <= 0)
         {
             return Problem(title: "Invalid missing player count");
         }
         
-        //  Get continent match container
-        var container = _mm.GetContainer(matchModel.Continent);
+        //  Get continent session container
+        var container = _mm.GetContainer(sessionModel.Continent);
         
-        //  Create new match
-        var match = _mm.CreateSession();
+        //  Create new session
+        var session = _mm.CreateSession();
         
-        container.AddMissingPlayerSession(match);
+        container.AddMissingPlayerSession(session);
 
         return Ok();
     }

@@ -47,19 +47,19 @@ public class MatchmakingClient
     /// Get all ready matches 
     /// </summary>
     /// <returns></returns>
-    public async Task<ReadyMatchesModel> GetReadyMatches()
+    public async Task<ReadySessionsModel> GetReadySessions()
     {
         HttpResponseMessage response = await _client.GetAsync(
-            $"api/Matchmaking/matches/{2}");
+            $"api/Matchmaking/sessions/{2}");
 
-        ReadyMatchesModel matches = null;
+        ReadySessionsModel sessions = null;
 
-        Console.WriteLine($"GetStatus matches: {response.StatusCode}");
+        Console.WriteLine($"GetStatus sessions: {response.StatusCode}");
         if(response.IsSuccessStatusCode)
         {
-            matches = await response.Content.ReadFromJsonAsync<ReadyMatchesModel>();
+            sessions = await response.Content.ReadFromJsonAsync<ReadySessionsModel>();
         }
 
-        return matches;
+        return sessions;
     }
 }

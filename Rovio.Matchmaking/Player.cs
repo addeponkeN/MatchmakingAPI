@@ -19,16 +19,16 @@ public class Player
     /// </summary>
     public int Rank { get; init; }
  
-    public bool IsMatchFound { get; private set; }
-    
     /// <summary>
     /// The session this player has been assigned to
     /// </summary>
     public Session? Session { get; private set; }
 
-    public void AssignToMatch(Session session)
+    public bool IsSessionFound { get; private set; }
+    
+    public void AssignToSession(Session session)
     {
-        IsMatchFound = true;
+        IsSessionFound = true;
         Session = session;
     }
 }

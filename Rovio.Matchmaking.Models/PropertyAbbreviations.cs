@@ -28,10 +28,15 @@ public static class PropertyAbbreviations
     /// <summary>
     /// Players
     /// </summary>
-    public const string MatchModelPlayers = "p";
+    public const string PlayerModelCollection = "p";
     
     /// <summary>
     /// MissingPlayerCount
     /// </summary>
     public const string MissingPlayersCount = "m";
+
+    /// <summary>
+    /// Sessions
+    /// </summary>
+    public const string SessionCollection = "s";
 }

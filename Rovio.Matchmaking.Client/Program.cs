@@ -1,8 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using Rovio.Matchmaking.Models;
+﻿using Rovio.Matchmaking.Models;
 using Rovio.Utility;
 
 namespace Rovio.Matchmaking.Client
@@ -54,8 +50,8 @@ namespace Rovio.Matchmaking.Client
                 Console.WriteLine("1) Add player");
                 Console.WriteLine("2) Add specified player");
                 Console.WriteLine("3) Add many random players");
-                Console.WriteLine("4) Get ready matches");
-                Console.WriteLine("5) Get ready matches and save to file");
+                Console.WriteLine("4) Get ready sessions");
+                Console.WriteLine("5) Get ready sessions and save to file");
 
                 var input = Console.ReadLine();
 
@@ -136,7 +132,7 @@ namespace Rovio.Matchmaking.Client
 
                             var group = new PlayerGroupModel()
                             {
-                                Members = list
+                                Players = list
                             };
 
                             var response = await client.AddPlayers(group);
@@ -154,11 +150,11 @@ namespace Rovio.Matchmaking.Client
                     {
                         Task.Run(async () =>
                         {
-                            var matches = await client.GetReadyMatches();
+                            var sessions = await client.GetReadySessions();
 
-                            int matchesCount = matches == null ? 0 : matches.Matches.Count();
+                            int sessionCount = sessions == null ? 0 : sessions.Sessions.Count();
 
-                            Console.WriteLine($"got '{matchesCount}' ready matches");
+                            Console.WriteLine($"got '{sessionCount}' ready sessions");
                         });
                         break;
                     }
@@ -167,15 +163,15 @@ namespace Rovio.Matchmaking.Client
                     {
                         Task.Run(async () =>
                         {
-                            var readyMatches = await client.GetReadyMatches();
+                            var readySessions = await client.GetReadySessions();
 
-                            int matchesCount = readyMatches == null ? 0 : readyMatches.Matches.Count();
+                            int sessionCount = readySessions == null ? 0 : readySessions.Sessions.Count();
 
-                            string path = $"{Directory.GetCurrentDirectory()}/readymatches.json";
-                            JsonHelper.Save(path, readyMatches);
+                            string path = $"{Directory.GetCurrentDirectory()}/readysessions.json";
+                            JsonHelper.Save(path, readySessions);
 
-                            Log.Debug($"got '{matchesCount}' ready matches");
-                            Log.Debug($"Saved ReadyMatches to {path}");
+                            Log.Debug($"got '{sessionCount}' ready sessions");
+                            Log.Debug($"Saved ReadySessions to {path}");
                         });
                         break;
                     }

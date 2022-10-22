@@ -10,15 +10,15 @@ public class Session
     /// <summary>
     /// Session id/key
     /// </summary>
-    public UniqueKey MatchId { get; init; }
+    public UniqueKey Id { get; init; }
 
     /// <summary>
-    /// All the players in the match
+    /// All the players in the session
     /// </summary>
     public List<Player> Players { get; }
 
     /// <summary>
-    /// Location of the match
+    /// Location of the session
     /// </summary>
     public Continents Continent { get; set; }
 
@@ -67,7 +67,7 @@ public class Session
 
         for(int i = 0; i < Players.Count; i++)
         {
-            Players[i].AssignToMatch(this);
+            Players[i].AssignToSession(this);
         }
     }
 
