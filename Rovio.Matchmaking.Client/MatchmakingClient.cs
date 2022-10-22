@@ -8,6 +8,8 @@ public class MatchmakingClient
 {
     private HttpClient _client;
 
+    private string _baseRoute;
+
     public MatchmakingClient(string address, int port)
     {
         _client = new()
@@ -15,6 +17,8 @@ public class MatchmakingClient
             BaseAddress = new Uri($"https://{address}:{port}"),
             Timeout = TimeSpan.FromSeconds(5),
         };
+
+        _baseRoute = "api/v1/Matchmaking/";
 
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Accept.Add(
@@ -26,10 +30,10 @@ public class MatchmakingClient
     /// </summary>
     /// <param name="player">Player to add</param>
     /// <returns>Response</returns>
-    public async Task<HttpResponseMessage> AddPlayer(PlayerModel player)
+    public async Task<HttpResponseMessage> AddPlayer(int game, PlayerModel player)
     {
         return await _client.PostAsJsonAsync(
-            $"api/Matchmaking/players/add/{player}", player);
+            $"{_baseRoute}{game}/players/add/{player}", player);
     }
 
     /// <summary>
@@ -40,7 +44,7 @@ public class MatchmakingClient
     public async Task<HttpResponseMessage> AddPlayers(PlayerGroupModel groupModel)
     {
         return await _client.PostAsJsonAsync(
-            $"api/Matchmaking/players/addrange/{groupModel}", groupModel);
+            $"{_baseRoute}players/addrange/{groupModel}", groupModel);
     }
 
     /// <summary>
@@ -50,7 +54,7 @@ public class MatchmakingClient
     public async Task<ReadySessionsModel> GetReadySessions()
     {
         HttpResponseMessage response = await _client.GetAsync(
-            $"api/Matchmaking/sessions/{2}");
+            $"{_baseRoute}sessions/{2}");
 
         ReadySessionsModel sessions = null;
 

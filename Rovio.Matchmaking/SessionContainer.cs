@@ -14,6 +14,7 @@ public class SessionContainer
     private List<Session> _readySessions;
     private Stack<Session> _emptySessions;
     private Queue<Session> _missingPlayerSessions;
+    private HashSet<UniqueKey> _missingHash;
 
 //  PRIVATE FIELDS
     private Matchmaker _mm;
@@ -27,6 +28,7 @@ public class SessionContainer
         _emptySessions = new Stack<Session>();
         _readySessions = new List<Session>();
         _missingPlayerSessions = new Queue<Session>();
+        _missingHash = new HashSet<UniqueKey>();
 
         _currentSession = GetNewSession();
     }
@@ -60,6 +62,7 @@ public class SessionContainer
     /// <param name="session">Session that is missing (a) player(s)</param>
     public void AddMissingPlayerSession(Session session)
     {
+        _missingHash.Add(session.Id);
         _missingPlayerSessions.Enqueue(session);
     }
 

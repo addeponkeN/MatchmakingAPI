@@ -22,7 +22,7 @@ namespace Rovio.Matchmaking.Client
             var model = new PlayerModel()
             {
                 Key = _idPool++,
-                // Name = name,
+                Name = name,
                 Continent = continent,
                 Rank = rank
             };
@@ -63,7 +63,7 @@ namespace Rovio.Matchmaking.Client
                         {
                             Log.Debug("adding player..");
                             var model = GeneratePlayer();
-                            var response = await client.AddPlayer(model);
+                            var response = await client.AddPlayer(3, model);
                             Log.Debug(response.StatusCode.ToString());
                             if(!response.IsSuccessStatusCode)
                             {
@@ -107,7 +107,7 @@ namespace Rovio.Matchmaking.Client
 
                         Task.Run(async () =>
                         {
-                            var response = await client.AddPlayer(model);
+                            var response = await client.AddPlayer(2, model);
                             Log.Debug(response.StatusCode.ToString());
                         });
 

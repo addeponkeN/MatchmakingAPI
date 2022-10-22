@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Rovio.Matchmaking.Api.Services;
 
@@ -47,7 +46,7 @@ public class Program
         SetupServices(builder.Services);
         
         builder.WebHost.UseUrls("https://*:5000");
-
+        
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -62,7 +61,7 @@ public class Program
             _app.UseSwagger();
             _app.UseSwaggerUI();
         }
-
+        
         _app.UseHttpsRedirection();
         _app.UseAuthorization();
         _app.MapControllers();

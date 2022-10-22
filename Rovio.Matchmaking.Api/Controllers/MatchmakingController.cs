@@ -5,9 +5,10 @@ using Rovio.Utility;
 namespace Rovio.Matchmaking.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]/")]
+[Route("api/v1/[controller]")]
 public class MatchmakingController : ControllerBase
 {
+    private static string test = "players52";
     private Matchmaker _mm;
 
     public MatchmakingController()
@@ -30,9 +31,10 @@ public class MatchmakingController : ControllerBase
     /// </summary>
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
-    [HttpPost("players/add/{player}")]
-    public async Task<ActionResult> AddPlayer(PlayerModel player)
+    [HttpPost("{game}/players/add/{player}")]
+    public async Task<ActionResult> AddPlayer(int game, PlayerModel player)
     {
+        Log.Debug($"GAME: {game}");
         if(player == null)
         {
             return Problem(title: "Invalid player info", statusCode: 101);
@@ -115,7 +117,7 @@ public class MatchmakingController : ControllerBase
     /// </summary>
     /// <param name="sessionModel">Player to add</param>
     /// <returns>API result</returns>
-    [HttpPost("players/add/{sessionModel}")]
+    [HttpPost("sessions/addmissing/{sessionModel}")]
     public async Task<ActionResult> AddMissingPlayerSession(MissingPlayerSessionModel sessionModel)
     {
         if(!sessionModel.Key.IsValid())
