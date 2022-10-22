@@ -32,9 +32,9 @@ public class MatchmakingController : ControllerBase
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
     [HttpPost("{game}/players/add/{player}")]
-    public async Task<ActionResult> AddPlayer(int game, PlayerModel player)
+    public async Task<ActionResult> AddPlayer(Guid gameId, PlayerModel player)
     {
-        Log.Debug($"GAME: {game}");
+        Log.Debug($"GAME: {gameId}");
         if(player == null)
         {
             return Problem(title: "Invalid player info", statusCode: 101);
