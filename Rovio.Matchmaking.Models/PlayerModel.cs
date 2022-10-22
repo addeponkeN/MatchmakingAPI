@@ -1,31 +1,45 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Rovio.Utility;
 
 namespace Rovio.Matchmaking.Models;
 
 /// <summary>
-/// Player matchmaking model
+/// Player matchmaking model.
+/// Each property has a JsonPropertyName abbreviation to reduce bandwidth usage.
 /// </summary>
+/// <para>Key = k</para>
+/// <para>Name = n</para>
+/// <para>Continent = c</para>
+/// <para>Rank = r</para>
 public record PlayerModel
 {
     /// <summary>
-    /// Unique id of the player
+    /// Unique id/key of the player
     /// </summary>
-    public UniqueId Id { get; init; }
+    [Required]
+    [JsonPropertyName(PropertyAbbreviations.UniqueKey)]
+    public UniqueKey Key { get; init; }
     
     /// <summary>
     /// Name of the player
     /// </summary>
+    [JsonPropertyName(PropertyAbbreviations.PlayerModelName)]
     public string Name { get; init; }
 
     /// <summary>
-    /// Where the player is connecting from
+    /// The preferred continent of the player
     /// </summary>
-    public Regions Region { get; init; }
+    [Required]
+    [JsonPropertyName(PropertyAbbreviations.Continent)]
+    public Continents Continent { get; init; }
     
     /// <summary>
     /// The rank or skill level of the player
     /// </summary>
+    [Required]
+    [JsonPropertyName(PropertyAbbreviations.PlayerModelRank)]
     [DefaultValue(1)]
     public int Rank { get; init; }
 

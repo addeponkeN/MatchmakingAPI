@@ -1,3 +1,5 @@
+using System.Net;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Rovio.Matchmaking.Api.Services;
 
 namespace Rovio.Matchmaking.Api;
@@ -6,46 +8,63 @@ public class Program
 {
     private static WebApplication _app;
 
+    public static Matchmaker Matchmaker;
+
     public static void Main(params string[] args)
     {
+        Matchmaker = new();
+
         BuildApplication(args);
         SetupApplication();
+    }
+
+    private static void SetupServices(IServiceCollection services)
+    {
+        // services.AddSingleton<IMatchmaker, Matchmaker>();
+
+        services.AddHostedService(_ =>
+        {
+            var mmService = new MatchmakingService();
+            mmService.Init(Matchmaker);
+            return mmService;
+        });
+
+        services.Configure<IISServerOptions>(opt =>
+        {
+            opt.MaxRequestBodySize = 100_000_000;
+        });
+        
+        services.Configure<KestrelServerOptions>(opt =>
+        {
+            opt.Limits.MaxRequestBodySize = 100_000_000;
+        });
     }
 
     private static void BuildApplication(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        SetupServices(builder.Services);
+        
+        builder.WebHost.UseUrls("https://*:5000");
 
-// Add services to the container.
         builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
-        builder.Services.AddHostedService<MatchmakeService>();
 
         _app = builder.Build();
     }
 
     private static void SetupApplication()
     {
-// Configure the HTTP request pipeline.
         if(_app.Environment.IsDevelopment())
         {
             _app.UseSwagger();
             _app.UseSwaggerUI();
         }
 
-        var mm = _app.Services.GetService<MatchmakeService>();
-
-        var settings = new MatchmakingSettings();
-        mm.Init(new Matchmaker(settings));
-
         _app.UseHttpsRedirection();
-
         _app.UseAuthorization();
-
         _app.MapControllers();
 
         _app.Run();

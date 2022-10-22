@@ -4,7 +4,7 @@ public static class Log
 {
     public delegate string DateTimeFormat();
 
-    private static DateTime _centralEuTime = DateTime.UtcNow.Subtract(TimeSpan.FromHours(2));
+    private static DateTime _centralEuTime = DateTime.UtcNow.Add(TimeSpan.FromHours(2));
 
     public static DateTimeFormat Format = () => _centralEuTime.ToShortTimeString();
 
@@ -23,4 +23,5 @@ public static class Log
             Console.Write($"[{Format()}]: ");
         Console.WriteLine(msg);
     }
+    
 }
