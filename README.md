@@ -6,9 +6,9 @@
 
 # How it works
 
-## Step by step
+### Step by step
 
-### Matchmaking
+#### Matchmaking
 
 - Server adds players to the matchmaker
 - The matchmaker matches and adds players together to sessions
