@@ -1,7 +1,7 @@
 namespace Rovio.Matchmaking.Models;
 
 /// <summary>
-/// 
+/// Contains data about game service
 /// </summary>
 public record GameServiceModel
 {

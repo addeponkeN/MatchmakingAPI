@@ -23,12 +23,6 @@ public record PlayerModel
     public UniqueKey Key { get; init; }
     
     /// <summary>
-    /// Name of the player
-    /// </summary>
-    [JsonPropertyName(PropertyAbbreviations.PlayerModelName)]
-    public string Name { get; init; }
-
-    /// <summary>
     /// The preferred continent of the player
     /// </summary>
     [Required]

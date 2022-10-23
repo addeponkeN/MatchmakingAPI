@@ -179,8 +179,8 @@ public class SessionContainer
             if(_currentSession.IsReady())
             {
                 SetSessionReady(_currentSession);
-                GetCurrentSession();
                 Log.Debug($"Minimum time waited - Starting session with '{_currentSession.Players.Count}' players");
+                GetCurrentSession();
             }
         }
     }

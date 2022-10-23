@@ -74,13 +74,14 @@ namespace Rovio.Matchmaking.Client
                 int index = ConsoleExtended.RequestChoice(
                     $"Matchmaking API - Your token: '{_client.ValidatedServer.ServerId}'\n\nChoose API call\n",
                     "Add player to matchmaking",
-                    "Add specified player to matchmaking",
+                    "Add 10 - 1,000 random players to matchmaking",
+                    "Add 1,000 - 100,000 random players to matchmaking",
+                    "Add 100,000 - 1,500,000 random players to matchmaking",
                     "Add an ongoing session that is missing player(s)",
-                    "Add 1,000,000 - 2,000,000 random players to matchmaking",
                     "Get ready sessions",
                     "Get ready sessions and save to file (..\\readysessions.json)",
                     "Get ready ongoing sessions"
-                    );
+                );
 
                 index++;
 
@@ -88,7 +89,6 @@ namespace Rovio.Matchmaking.Client
 
                 switch(index)
                 {
-                    
                     //  ADD PLAYER TO MATCHMAKING
                     case 1:
                     {
@@ -104,33 +104,40 @@ namespace Rovio.Matchmaking.Client
                         break;
                     }
 
-                    
-                    //  ADD SPECIFIED PLAYER TO MATCHMAKING
+                    //  ADD RANDOM AMOUNT OF PLAYERS TO MATCHMAKING
                     case 2:
                     {
-                        string name;
-                        Continents continent;
+                        int count = Random.Shared.Next(10, 1000);
 
-                        Console.Clear();
-                        name = ConsoleExtended.RequestString("Name: ");
-                        if(string.IsNullOrEmpty(name))
-                            name = "Donald";
-
-                        continent = ConsoleExtended.RequestChoice(
-                            "Continent:",
-                            Continents.EU, Continents.NA, Continents.OC);
-
-                        var model = CreatePlayer(name, continent, Random.Shared.Next(1, 10));
-
-                        var response = await _client.AddPlayer(model);
-                        Log.Debug(response.StatusCode.ToString());
+                        await AddPlayers(count);
 
                         break;
                     }
 
 
-                    //  ADD AN ONGOING SESSION TO MATCHMAKING (MISSING PLAYERS)
+                    //  ADD RANDOM AMOUNT OF PLAYERS TO MATCHMAKING
                     case 3:
+                    {
+                        int count = Random.Shared.Next(1_000, 100_00);
+                        
+                        await AddPlayers(count);
+
+                        break;
+                    }
+
+
+                    //  ADD RANDOM AMOUNT OF PLAYERS TO MATCHMAKING
+                    case 4:
+                    {
+                        int count = Random.Shared.Next(100_000, 1_500_000);
+                        
+                        await AddPlayers(count);
+
+                        break;
+                    }
+
+                    //  ADD AN ONGOING SESSION TO MATCHMAKING (MISSING PLAYERS)
+                    case 5:
                     {
                         Continents continent = Continents.EU;
                         int missingPlayerCount = Random.Shared.Next(1, 4);
@@ -151,46 +158,12 @@ namespace Rovio.Matchmaking.Client
                         {
                             Log.Debug(matchResponse.StatusCode.ToStringEnum());
                         }
-                        
-                        break;
-                    }
-                    
-                    
-                    //  ADD RANDOM AMOUNT OF PLAYERS TO MATCHMAKING
-                    case 4:
-                    {
-                        int count = Random.Shared.Next(1_000_000, 2_000_000);
-                        count = 100;
-
-                        var list = new List<PlayerModel>(count);
-
-                        Log.Debug($"Generating '{count}' players...");
-
-                        for(int i = 0; i < count; i++)
-                        {
-                            list.Add(GeneratePlayer());
-                        }
-
-                        var group = new PlayerGroupModel()
-                        {
-                            Players = list
-                        };
-
-                        Log.Debug($"Adding '{count} players...");
-                        
-                        var response = await _client.AddPlayers(group);
-
-                        if(response.IsSuccessStatusCode)
-                        {
-                            Log.Debug($"'{count}' players added to matchmaking!");
-                        }
 
                         break;
                     }
 
-                    
                     //  GET READY SESSIONS
-                    case 5:
+                    case 6:
                     {
                         var sessions = await _client.GetReadySessions();
 
@@ -200,9 +173,9 @@ namespace Rovio.Matchmaking.Client
                         break;
                     }
 
-                    
+
                     //  GET READY SESSIONS & SAVE TO FILE (JSON)
-                    case 6:
+                    case 7:
                     {
                         var readySessions = await _client.GetReadySessions();
 
@@ -214,15 +187,15 @@ namespace Rovio.Matchmaking.Client
                         Log.Debug($"Saved '{sessionCount}' ReadySessions to {path}");
                         break;
                     }
-                    
-                                        
+
+
                     //  GET READY ONGOING SESSIONS
-                    case 7:
+                    case 8:
                     {
                         var sessions = await _client.GetReadyOngoingSessions();
 
                         int sessionCount = sessions == null ? 0 : sessions.Sessions.Count();
-                        
+
                         Log.Debug($"Got '{sessionCount}' ready ongoing sessions");
                         break;
                     }
@@ -233,21 +206,46 @@ namespace Rovio.Matchmaking.Client
             }
         }
 
+        private static async Task AddPlayers(int count)
+        {
+            var list = new List<PlayerModel>(count);
+
+            Log.Debug($"Generating '{count}' players...");
+
+            for(int i = 0; i < count; i++)
+            {
+                list.Add(GeneratePlayer());
+            }
+
+            var group = new PlayerGroupModel()
+            {
+                Players = list
+            };
+
+            Log.Debug($"Adding '{count} players...");
+
+            var response = await _client.AddPlayers(group);
+
+            if(response.IsSuccessStatusCode)
+            {
+                Log.Debug($"'{count}' players added to matchmaking!");
+            }
+        }
+
         private static PlayerModel GeneratePlayer()
         {
             var model = CreatePlayer(
-                $"Goofy{Random.Shared.Next(int.MaxValue)}",
+                // $"Goofy{Random.Shared.Next(int.MaxValue)}",
                 GetRandomContinent(),
                 Random.Shared.Next(1, 10));
             return model;
         }
 
-        private static PlayerModel CreatePlayer(string name, Continents continent, int rank)
+        private static PlayerModel CreatePlayer(Continents continent, int rank)
         {
             var model = new PlayerModel()
             {
                 Key = _idPool++,
-                Name = name,
                 Continent = continent,
                 Rank = rank
             };
