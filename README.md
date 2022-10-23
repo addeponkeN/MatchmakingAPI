@@ -9,7 +9,7 @@
 - Supports multiple games
 - Supports millions of players matchmaking at the same time
 - Match players together by latency (player location)
-- Supports Drop-in matchmaking
+- Supports Drop-in matchmaking (Players can join an ongoing session)
 
 
 # How it works
