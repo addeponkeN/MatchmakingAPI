@@ -24,6 +24,22 @@ public class Session
 
     public bool IsStarted { get; private set; }
 
+    public bool IsActive
+    {
+        get => _isActive;
+        set
+        {
+            _isActive = value;
+            if(_isActive)
+            {
+                _previousTime = DateTime.Now;
+            }
+        }
+    }
+
+    private bool _isActive;
+    private DateTime _previousTime;
+    private float _activeTimer;
     private Matchmaker _mm;
 
     public Session(Matchmaker mm)
@@ -50,25 +66,26 @@ public class Session
     }
 
     /// <summary>
-    /// Matchmaking is complete and is ready to start the session
+    /// Matchmaking is complete and is ready to start
     /// </summary>
     /// <returns>Session is ready to start</returns>
     public bool IsReady()
     {
-        return Players.Count >= _mm.Settings.MaxPlayer;
+        if(Players.Count >= _mm.Settings.MaxPlayer)
+            return true;
+
+        if(Players.Count >= _mm.Settings.MinPlayers && _activeTimer > _mm.Settings.MinimumWaitTime)
+            return true;
+
+        return false;
     }
 
     /// <summary>
-    /// Start session and assign players to this session
+    /// Start the session
     /// </summary>
     public void Start()
     {
         IsStarted = true;
-
-        for(int i = 0; i < Players.Count; i++)
-        {
-            Players[i].AssignToSession(this);
-        }
     }
 
     /// <summary>
@@ -77,7 +94,41 @@ public class Session
     public Session Recycle()
     {
         IsStarted = false;
+        IsActive = false;
+        _activeTimer = 0f;
         Players.Clear();
         return this;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <returns>Current player count is above the minimum player count (inclusive)</returns>
+    public bool MinimumPlayerCountReached()
+    {
+        return Players.Count >= _mm.Settings.MinPlayers;
+    }
+
+    /// <summary>
+    /// Check of the minimum wait time
+    /// </summary>
+    /// <returns>Minimum time</returns>
+    public bool MinimumTimeWaited()
+    {
+        var timeNow = DateTime.Now;
+        
+        if(!MinimumPlayerCountReached())
+        {
+            _activeTimer = 0f;
+            _previousTime = timeNow;
+            return false;
+        }
+
+        var difference = timeNow.Subtract(_previousTime);
+
+        _previousTime = timeNow;
+
+        _activeTimer += (float)difference.TotalSeconds;
+
+        return _activeTimer > _mm.Settings.MinimumWaitTime;
     }
 }

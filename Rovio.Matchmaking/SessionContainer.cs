@@ -13,22 +13,21 @@ public class SessionContainer
 //  MATCH COLLECTIONS
     private List<Session> _readySessions;
     private Stack<Session> _emptySessions;
-    private Queue<Session> _missingPlayerSessions;
-    private HashSet<UniqueKey> _missingHash;
+    private Queue<Session> _ongoingSessions;
 
 //  PRIVATE FIELDS
     private Matchmaker _mm;
     private Session _currentSession;
-    private bool _beenSetToClear;
+    private bool _isSetToClear;
 
     public SessionContainer(Matchmaker mm, Continents cont)
     {
         _mm = mm;
         Continent = cont;
+
         _emptySessions = new Stack<Session>();
         _readySessions = new List<Session>();
-        _missingPlayerSessions = new Queue<Session>();
-        _missingHash = new HashSet<UniqueKey>();
+        _ongoingSessions = new Queue<Session>();
 
         _currentSession = GetNewSession();
     }
@@ -37,11 +36,25 @@ public class SessionContainer
     /// Get an empty inactive session
     /// </summary>
     /// <returns>Empty session</returns>
-    public Session GetNewSession(bool ignoreMissingPlayerSessions = false)
+    public Session GetNewSession(bool ignoreOngoingSessions = false)
     {
-        if(!ignoreMissingPlayerSessions && _missingPlayerSessions.Count > 0)
-            return _missingPlayerSessions.Dequeue();
-        return _emptySessions.Count <= 0 ? _mm.CreateSession() : _emptySessions.Pop();
+        Session session;
+        do
+        {
+            if(!ignoreOngoingSessions && _ongoingSessions.Count > 0)
+            {
+                session = _ongoingSessions.Dequeue();
+            }
+            else
+            {
+                session = _emptySessions.Count <= 0 ? _mm.CreateSession() : _emptySessions.Pop();
+            }
+            
+        } while(session.IsActive);
+
+        session.IsActive = true;
+
+        return session;
     }
 
     /// <summary>
@@ -60,10 +73,9 @@ public class SessionContainer
     /// This session will have higher priority in the matchmaker
     /// </summary>
     /// <param name="session">Session that is missing (a) player(s)</param>
-    public void AddMissingPlayerSession(Session session)
+    public void AddOngoingSession(Session session)
     {
-        _missingHash.Add(session.Id);
-        _missingPlayerSessions.Enqueue(session);
+        _ongoingSessions.Enqueue(session);
     }
 
     /// <summary>
@@ -74,7 +86,7 @@ public class SessionContainer
     {
         //  Clear all ready sessions if the container has already been marked to clear
         //  and return an empty collection
-        if(_beenSetToClear)
+        if(_isSetToClear)
         {
             ClearReadySessions();
         }
@@ -82,7 +94,7 @@ public class SessionContainer
         //  else mark to prepare clear and return all ready sessions
         else
         {
-            _beenSetToClear = true;
+            _isSetToClear = true;
         }
 
         return _readySessions;
@@ -93,7 +105,7 @@ public class SessionContainer
     /// </summary>
     public void ClearReadySessions()
     {
-        _beenSetToClear = false;
+        _isSetToClear = false;
         for(int i = 0; i < _readySessions.Count; i++)
         {
             _emptySessions.Push(_readySessions[i].Recycle());
@@ -109,11 +121,25 @@ public class SessionContainer
     /// <param name="session">Session to be marked as ready</param>
     public void SetSessionReady(Session session)
     {
-        if(_beenSetToClear)
+        if(_isSetToClear)
         {
             ClearReadySessions();
         }
 
+        session.Start();
         _readySessions.Add(session);
+    }
+
+    public void UpdateCurrentSession()
+    {
+        if(_currentSession.MinimumTimeWaited())
+        {
+            if(_currentSession.IsReady())
+            {
+                SetSessionReady(_currentSession);
+                GetCurrentSession();
+                Log.Debug("max time waited !! starting session");
+            }
+        }
     }
 }

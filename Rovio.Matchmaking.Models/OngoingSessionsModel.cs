@@ -9,7 +9,7 @@ namespace Rovio.Matchmaking.Models;
 /// and add the missing amount of players to the session.
 /// High priority session. 
 /// </summary>
-public class MissingPlayerSessionModel
+public class OngoingSessionsModel
 {
     /// <summary>
     /// Unique id/key of the session that is missing player(s)

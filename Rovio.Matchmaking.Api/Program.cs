@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Rovio.Matchmaking.Api.Repositories;
 using Rovio.Matchmaking.Api.Services;
 
 namespace Rovio.Matchmaking.Api;
@@ -7,11 +8,11 @@ public class Program
 {
     private static WebApplication _app;
 
-    public static Matchmaker Matchmaker;
+    private static MatchmakingManager mmManager;
 
     public static void Main(params string[] args)
     {
-        Matchmaker = new();
+        mmManager = new();
 
         BuildApplication(args);
         SetupApplication();
@@ -19,12 +20,13 @@ public class Program
 
     private static void SetupServices(IServiceCollection services)
     {
-        // services.AddSingleton<IMatchmaker, Matchmaker>();
+        services.AddSingleton<IClientRepository, ServerRepository>();
+        services.AddSingleton<MatchmakingManager>(mmManager);
 
         services.AddHostedService(_ =>
         {
             var mmService = new MatchmakingService();
-            mmService.Init(Matchmaker);
+            mmService.Init(mmManager);
             return mmService;
         });
 
@@ -45,7 +47,7 @@ public class Program
         
         SetupServices(builder.Services);
         
-        builder.WebHost.UseUrls("https://*:5000");
+        builder.WebHost.UseUrls("https://*:5000", "http://*:5001");
         
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();

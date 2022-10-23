@@ -18,17 +18,4 @@ public class Player
     /// The rank or skill level of the player
     /// </summary>
     public int Rank { get; init; }
- 
-    /// <summary>
-    /// The session this player has been assigned to
-    /// </summary>
-    public Session? Session { get; private set; }
-
-    public bool IsSessionFound { get; private set; }
-    
-    public void AssignToSession(Session session)
-    {
-        IsSessionFound = true;
-        Session = session;
-    }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Rovio.Matchmaking.Api.Repositories;
 using Rovio.Matchmaking.Models;
 using Rovio.Utility;
 
@@ -8,12 +9,13 @@ namespace Rovio.Matchmaking.Api.Controllers;
 [Route("api/v1/[controller]")]
 public class MatchmakingController : ControllerBase
 {
-    private static string test = "players52";
-    private Matchmaker _mm;
+    private MatchmakingManager _manager;
+    private IClientRepository _serverRepository;
 
-    public MatchmakingController()
+    public MatchmakingController(MatchmakingManager manager, IClientRepository serverPepository)
     {
-        _mm = Program.Matchmaker;
+        _manager = manager;
+        _serverRepository = serverPepository;
     }
 
     /// <summary>
@@ -31,10 +33,19 @@ public class MatchmakingController : ControllerBase
     /// </summary>
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
-    [HttpPost("{game}/players/add/{player}")]
-    public async Task<ActionResult> AddPlayer(Guid gameId, PlayerModel player)
+    [HttpPost("{token}/players/add/{player}")]
+    public async Task<ActionResult> AddPlayer(Guid token, PlayerModel player)
     {
-        Log.Debug($"GAME: {gameId}");
+        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        {
+            return Problem(title: "Invalid token", statusCode: 101);
+        }
+
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error", statusCode: 103);
+        }
+
         if(player == null)
         {
             return Problem(title: "Invalid player info", statusCode: 101);
@@ -50,7 +61,7 @@ public class MatchmakingController : ControllerBase
             return Problem(title: "Invalid player continent", statusCode: 103);
         }
 
-        _mm.AddPlayer(player.ToMatchmakePlayer());
+        matchmaker.AddPlayer(player.ToMatchmakePlayer());
 
         return Ok();
     }
@@ -59,10 +70,15 @@ public class MatchmakingController : ControllerBase
     /// Adds players to the matchmaking queue
     /// </summary>
     /// <param name="groupModel">Players to add</param>
-    /// <returns>API response</returns>
-    [HttpPost("players/addrange/{groupModel}")]
-    public async Task<ActionResult> AddPlayers(PlayerGroupModel groupModel)
+    /// <returns>API result</returns>
+    [HttpPost("{token}/players/addrange/{groupModel}")]
+    public async Task<ActionResult> AddPlayers(Guid token, PlayerGroupModel groupModel)
     {
+        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        {
+            return Problem(title: "Invalid token");
+        }
+
         if(groupModel == null)
         {
             return Problem(title: "Invalid parameter");
@@ -82,10 +98,15 @@ public class MatchmakingController : ControllerBase
             }
         }
 
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error");
+        }
+
         //  add members to matchmaking
         foreach(var p in groupModel.Players)
         {
-            _mm.AddPlayer(p.ToMatchmakePlayer());
+            matchmaker.AddPlayer(p.ToMatchmakePlayer());
         }
 
         return Ok();
@@ -96,11 +117,21 @@ public class MatchmakingController : ControllerBase
     /// </summary>
     /// <param name="continent">The continent to get sessions from</param>
     /// <returns>List of all ready sessions</returns>
-    [HttpGet("sessions/{continent}")]
-    public async Task<ActionResult<ReadySessionsModel>> GetReadySessions(Continents continent)
+    [HttpGet("{token}/sessions/{continent}")]
+    public async Task<ActionResult<ReadySessionsModel>> GetReadySessions(Guid token, Continents continent)
     {
+        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        {
+            return Problem(title: "Invalid token", statusCode: 101);
+        }
+
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error");
+        }
+
         //  Pop all ready sessions in the continent and convert to model
-        var sessions = _mm.PopReadySessions(continent).ToModels();
+        var sessions = matchmaker.PopReadySessions(continent).ToModels();
 
         var model = new ReadySessionsModel()
         {
@@ -111,37 +142,47 @@ public class MatchmakingController : ControllerBase
 
         return Ok(model);
     }
-    
+
     /// <summary>
     /// Adds a player to the matchmaking queue
     /// </summary>
     /// <param name="sessionModel">Player to add</param>
     /// <returns>API result</returns>
-    [HttpPost("sessions/addmissing/{sessionModel}")]
-    public async Task<ActionResult> AddMissingPlayerSession(MissingPlayerSessionModel sessionModel)
+    [HttpPost("{token}/sessions/addmissing/{sessionModel}")]
+    public async Task<ActionResult> AddOngoingSession(Guid token, OngoingSessionsModel sessionModel)
     {
-        if(!sessionModel.Key.IsValid())
+        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
-            return Problem(title: "Invalid session id");
+            return Problem(title: "Invalid token", statusCode: 101);
         }
-        
-        if(sessionModel.Continent == Continents.None)
-        {
-            return Problem(title: "Invalid continent");
-        }
-        
+
         if(sessionModel.MissingPlayersCount <= 0)
         {
             return Problem(title: "Invalid missing player count");
         }
         
+        if(!sessionModel.Key.IsValid())
+        {
+            return Problem(title: "Invalid session id");
+        }
+
+        if(sessionModel.Continent == Continents.None)
+        {
+            return Problem(title: "Invalid continent");
+        }
+
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error");
+        }
+
         //  Get continent session container
-        var container = _mm.GetContainer(sessionModel.Continent);
-        
+        var container = matchmaker.GetContainer(sessionModel.Continent);
+
         //  Create new session
-        var session = _mm.CreateSession();
-        
-        container.AddMissingPlayerSession(session);
+        var session = container.GetNewSession();
+
+        container.AddOngoingSession(session);
 
         return Ok();
     }

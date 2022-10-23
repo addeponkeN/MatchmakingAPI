@@ -6,23 +6,40 @@ namespace Rovio.Matchmaking.Client;
 
 public class MatchmakingClient
 {
-    private HttpClient _client;
+    public ValidatedServerModel GetServerInfo => _validatedServer;
 
-    private string _baseRoute;
+    private HttpClient _client;
+    private ValidatedServerModel _validatedServer;
+    private string _matchmakingRoute;
+    private string _gameServiceRoute;
 
     public MatchmakingClient(string address, int port)
     {
         _client = new()
         {
             BaseAddress = new Uri($"https://{address}:{port}"),
-            Timeout = TimeSpan.FromSeconds(5),
+            Timeout = TimeSpan.FromSeconds(30),
         };
 
-        _baseRoute = "api/v1/Matchmaking/";
+        _matchmakingRoute = "api/v1/Matchmaking/";
+        _gameServiceRoute = "api/v1/GameServices/";
 
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json"));
+    }
+
+    public async Task<HttpResponseMessage> RegisterServer(ServerModel server)
+    {
+        var response = await _client.PostAsJsonAsync(
+            $"{_gameServiceRoute}register/{server}", server);
+
+        if(response.IsSuccessStatusCode)
+        {
+            _validatedServer = await response.Content.ReadFromJsonAsync<ValidatedServerModel>();
+        }
+
+        return response;
     }
 
     /// <summary>
@@ -30,10 +47,10 @@ public class MatchmakingClient
     /// </summary>
     /// <param name="player">Player to add</param>
     /// <returns>Response</returns>
-    public async Task<HttpResponseMessage> AddPlayer(int game, PlayerModel player)
+    public async Task<HttpResponseMessage> AddPlayer(PlayerModel player)
     {
         return await _client.PostAsJsonAsync(
-            $"{_baseRoute}{game}/players/add/{player}", player);
+            $"{_matchmakingRoute}{_validatedServer.ServerId}/players/add/{player}", player);
     }
 
     /// <summary>
@@ -44,7 +61,7 @@ public class MatchmakingClient
     public async Task<HttpResponseMessage> AddPlayers(PlayerGroupModel groupModel)
     {
         return await _client.PostAsJsonAsync(
-            $"{_baseRoute}players/addrange/{groupModel}", groupModel);
+            $"{_matchmakingRoute}{_validatedServer.ServerId}/players/addrange/{groupModel}", groupModel);
     }
 
     /// <summary>
@@ -54,11 +71,10 @@ public class MatchmakingClient
     public async Task<ReadySessionsModel> GetReadySessions()
     {
         HttpResponseMessage response = await _client.GetAsync(
-            $"{_baseRoute}sessions/{2}");
+            $"{_matchmakingRoute}{_validatedServer.ServerId}/sessions/{2}");
 
         ReadySessionsModel sessions = null;
 
-        Console.WriteLine($"GetStatus sessions: {response.StatusCode}");
         if(response.IsSuccessStatusCode)
         {
             sessions = await response.Content.ReadFromJsonAsync<ReadySessionsModel>();

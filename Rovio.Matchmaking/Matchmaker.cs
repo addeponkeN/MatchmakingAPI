@@ -5,24 +5,28 @@ namespace Rovio.Matchmaking;
 
 public class Matchmaker
 {
+    public Guid GameServiceId { get; init; }
     public MatchmakingSettings Settings { get; }
 
     private IdGenerator _idGenerator;
     private Dictionary<Continents, SessionContainer> _containers;
+    private List<SessionContainer> _containerList;
     private Queue<Player> _players;
 
     private object _queueLocker = new();
 
-    public Matchmaker() : this(new MatchmakingSettings())
+    public Matchmaker(Guid gameServiceId) : this(gameServiceId, new MatchmakingSettings())
     {
     }
 
-    public Matchmaker(MatchmakingSettings settings)
+    public Matchmaker(Guid gameServiceId, MatchmakingSettings settings)
     {
+        GameServiceId = gameServiceId;
         Settings = settings;
         _players = new Queue<Player>();
         _idGenerator = new IdGenerator();
         _containers = new();
+        _containerList = new();
 
         AddContainers();
     }
@@ -32,7 +36,9 @@ public class Matchmaker
         var continents = Enum.GetValues<Continents>();
         foreach(var continent in continents)
         {
-            _containers.Add(continent, new SessionContainer(this, continent));
+            var container = new SessionContainer(this, continent);
+            _containers.Add(continent, container);
+            _containerList.Add(container);
         }
     }
 
@@ -54,7 +60,28 @@ public class Matchmaker
         }
     }
 
-    public async Task Update()
+    public IEnumerable<Session> PopReadySessions(Continents continent)
+    {
+        var container = GetContainer(continent);
+        return container.PopReadySessions();
+    }
+
+    public void Update()
+    {
+        UpdateMatchmaking();
+        UpdateSessions();
+    }
+
+    public void UpdateSessions()
+    {
+        for(int i = 0; i < _containerList.Count; i++)
+        {
+            var container = _containerList[i];
+            container.UpdateCurrentSession();
+        }
+    }
+
+    private void UpdateMatchmaking()
     {
         int playerCount;
 
@@ -63,22 +90,20 @@ public class Matchmaker
             playerCount = _players.Count;
         }
 
-
         //  no need to update if there are no players to matchmake with
         if(playerCount <= 0)
         {
             return;
         }
 
-        //  max amount of players to match together per update 
+        //  max amount of players that can be matched together per update 
         const int bucketSize = 50_000;
 
-        int length = (int)MathF.Min(bucketSize, playerCount);
+        int length = Math.Min(bucketSize, playerCount);
 
-        //  debug
         var sw = Stopwatch.StartNew();
         int startedSessionsCount = 0;
-        
+
         for(int i = 0; i < length; i++)
         {
             Player player;
@@ -90,26 +115,21 @@ public class Matchmaker
 
             var container = GetContainer(player.Continent);
             var session = container.GetCurrentSession();
-            
+
             session.AddPlayer(player);
 
             if(session.IsReady())
             {
                 container.SetSessionReady(session);
-                session.Start();
                 startedSessionsCount++;
             }
         }
 
-        //  debug
         sw.Stop();
         Console.WriteLine(
             $"time: {sw.Elapsed.TotalMilliseconds}ms  |  '{startedSessionsCount}' sessions started  |  '{length}' players matched");
     }
 
-    public IEnumerable<Session> PopReadySessions(Continents continent)
-    {
-        var container = GetContainer(continent);
-        return container.PopReadySessions();
-    }
+
+
 }

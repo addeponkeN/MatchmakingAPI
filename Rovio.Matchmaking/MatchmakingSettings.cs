@@ -1,14 +1,8 @@
-
 namespace Rovio.Matchmaking;
 
 public class MatchmakingSettings
 {
-    public int MinPlayers = 2;
-    public int MaxPlayer = 10;
-
-    public float MaxWaitTime = 5f;
-
-    public MatchmakingSettings()
-    {
-    }
+    public int MinPlayers { get; set; } = 2;
+    public int MaxPlayer { get; set; } = 10;
+    public float MinimumWaitTime { get; set; } = 6f;
 }

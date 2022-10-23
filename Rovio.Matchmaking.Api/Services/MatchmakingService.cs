@@ -8,11 +8,11 @@ public class MatchmakingService : BackgroundService
     /// </summary>
     private int _updateFrequency;
     
-    private Matchmaker _mm;
+    private MatchmakingManager _manager;
 
-    public void Init(Matchmaker mm)
+    public void Init(MatchmakingManager mm)
     {
-        _mm = mm;
+        _manager = mm;
     }
     
     //  todo : load from config
@@ -29,7 +29,7 @@ public class MatchmakingService : BackgroundService
         {
             await Task.Delay(_updateFrequency);
             // Log.Debug("matchmaking");
-            await _mm.Update();
+            _manager.Update();
         }
     }
 }
