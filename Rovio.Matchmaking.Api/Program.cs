@@ -31,12 +31,12 @@ public class Program
 
         services.Configure<IISServerOptions>(opt =>
         {
-            opt.MaxRequestBodySize = 100_000_000;
+            opt.MaxRequestBodySize = 300_000_000;
         });
         
         services.Configure<KestrelServerOptions>(opt =>
         {
-            opt.Limits.MaxRequestBodySize = 100_000_000;
+            opt.Limits.MaxRequestBodySize = 300_000_000;
         });
     }
 

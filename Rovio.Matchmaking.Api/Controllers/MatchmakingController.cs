@@ -47,7 +47,7 @@ public class MatchmakingController : ControllerBase
         {
             return Problem(title: "Invalid token");
         }
-        
+
         if(player == null)
         {
             return Problem(title: "Invalid player info");
@@ -131,7 +131,7 @@ public class MatchmakingController : ControllerBase
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
-            return Problem(title: "Invalid token", statusCode: 101);
+            return Problem(title: "Invalid token");
         }
 
         if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
@@ -153,27 +153,63 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
+    /// Get all ongoing sessions
+    /// </summary>
+    /// <param name="token">Server token</param>
+    /// <param name="continent">The continent of the server</param>
+    /// <returns>Collection of all ready ongoing sessions</returns>
+    [HttpGet("{token}/sessions/ongoing/{continent}")]
+    public async Task<ActionResult<ReadySessionsModel>> GetReadyOngoingSessions(Guid token, Continents continent)
+    {
+        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        {
+            return Problem(title: "Invalid token");
+        }
+
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error");
+        }
+
+        var readyOngoingCollection = matchmaker.PopReadyOngoingSessions(continent, token);
+
+        if(readyOngoingCollection == null)
+        {
+            return Problem(title: "Internal matchmaking error");
+        }
+        
+        //  Pop all ready ongoing sessions in the continent that has been added by this token (server)
+        var sessions = readyOngoingCollection.ToModels();
+
+        var model = new ReadyOngoingSessionModel()
+        {
+            Sessions = sessions
+        };
+
+        Log.Debug($"Popped '{model.Sessions.Count()}' sessions");
+
+        return Ok(model);
+    }
+
+    /// <summary>
     /// Add an OngoingSession to the matchmaker
     /// </summary>
     /// <param name="token">Server token</param>
     /// <param name="sessionModel">Session to add</param>
     /// <returns>API result</returns>
-    [HttpPost("{token}/sessions/addmissing/{sessionModel}")]
-    public async Task<ActionResult> AddOngoingSession(Guid token, OngoingSessionsModel sessionModel)
+    [HttpPost("{token}/sessions/addongoing/{sessionModel}")]
+    public async Task<ActionResult> AddOngoingSession(
+        Guid token,
+        OngoingSessionsModel sessionModel)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
-            return Problem(title: "Invalid token", statusCode: 101);
+            return Problem(title: "Invalid token");
         }
 
         if(sessionModel.MissingPlayersCount <= 0)
         {
             return Problem(title: "Invalid missing player count");
-        }
-        
-        if(!sessionModel.Key.IsValid())
-        {
-            return Problem(title: "Invalid session id");
         }
 
         if(sessionModel.Continent == Continents.None)
@@ -190,9 +226,7 @@ public class MatchmakingController : ControllerBase
         var container = matchmaker.GetContainer(sessionModel.Continent);
 
         //  Create new session
-        var session = container.GetNewSession();
-
-        container.AddOngoingSession(session);
+        container.AddOngoingSession(sessionModel.MissingPlayersCount, token);
 
         return Ok();
     }

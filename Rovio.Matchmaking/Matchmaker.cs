@@ -9,7 +9,7 @@ public class Matchmaker
     /// The game service id
     /// </summary>
     public Guid GameServiceId { get; init; }
-    
+
     /// <summary>
     /// Matchmaking settings
     /// </summary>
@@ -19,14 +19,17 @@ public class Matchmaker
     /// Generates id's to newly created sessions
     /// </summary>
     private IdGenerator _idGenerator;
-    
+
     private Dictionary<Continents, SessionContainer> _containers;
     private List<SessionContainer> _containerList;
     private Queue<Player> _players;
 
     private object _queueLocker = new();
 
-    public Matchmaker(Guid gameServiceId) : this(gameServiceId, new MatchmakingSettings()) { }
+    public Matchmaker(Guid gameServiceId) : this(gameServiceId, new MatchmakingSettings())
+    {
+    }
+
     public Matchmaker(Guid gameServiceId, MatchmakingSettings settings)
     {
         GameServiceId = gameServiceId;
@@ -71,7 +74,7 @@ public class Matchmaker
     {
         return new Session(this) {Id = _idGenerator.GetId()};
     }
-    
+
     /// <summary>
     /// Add a player to the matchmaker
     /// </summary>
@@ -93,6 +96,19 @@ public class Matchmaker
     {
         var container = GetContainer(continent);
         return container.PopReadySessions();
+    }
+
+    /// <summary>
+    /// Return and remove all sessions that is ready start.
+    /// </summary>
+    /// <param name="continent"></param>
+    /// <param name="serverToken"></param>
+    /// <returns>Collection of all ready sessions</returns>
+    public IEnumerable<Session> PopReadyOngoingSessions(Continents continent, Guid serverToken)
+    {
+        var container = GetContainer(continent);
+        var sessions = container.PopReadyOngoingSessions(serverToken);
+        return sessions;
     }
 
     /// <summary>
@@ -142,6 +158,7 @@ public class Matchmaker
 
         var sw = Stopwatch.StartNew();
         int startedSessionsCount = 0;
+        int startedOngoingSessionsCount = 0;
 
         for(int i = 0; i < length; i++)
         {
@@ -163,15 +180,15 @@ public class Matchmaker
             if(session.IsReady())
             {
                 container.SetSessionReady(session);
-                startedSessionsCount++;
+                if(session.IsOngoing)
+                    startedOngoingSessionsCount++;
+                else
+                    startedSessionsCount++;
             }
         }
 
         sw.Stop();
         Console.WriteLine(
-            $"time: {sw.Elapsed.TotalMilliseconds}ms  |  '{startedSessionsCount}' sessions started  |  '{length}' players matched");
+            $"time: {sw.Elapsed.TotalMilliseconds}ms  |  '{startedSessionsCount}' sessions started  |  '{startedOngoingSessionsCount}' ongoings started  |  '{length}' players matched");
     }
-
-
-
 }

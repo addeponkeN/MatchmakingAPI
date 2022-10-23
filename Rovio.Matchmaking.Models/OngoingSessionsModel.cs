@@ -12,13 +12,6 @@ namespace Rovio.Matchmaking.Models;
 public class OngoingSessionsModel
 {
     /// <summary>
-    /// Unique id/key of the session that is missing player(s)
-    /// </summary>
-    [Required]
-    [JsonPropertyName(PropertyAbbreviations.UniqueKey)]
-    public UniqueKey Key { get; set; }
-
-    /// <summary>
     /// The location of the session
     /// </summary>
     [Required]

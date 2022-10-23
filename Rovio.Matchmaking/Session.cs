@@ -24,23 +24,12 @@ public class Session
 
     public bool IsStarted { get; private set; }
 
-    /// <summary>
-    /// True if this session is the current session the matchmaker is using to match players.
-    /// </summary>
-    public bool IsActive
-    {
-        get => _isActive;
-        set
-        {
-            _isActive = value;
-            if(_isActive)
-            {
-                _previousTime = DateTime.Now;
-            }
-        }
-    }
+    public Guid OwnerToken { get; private set; }
 
-    private bool _isActive;
+    public int MissingPlayersCount { get; private set; }
+
+    public bool IsOngoing => MissingPlayersCount > 0;
+
     private DateTime _previousTime;
     private float _activeTimer;
     private Matchmaker _mm;
@@ -64,8 +53,19 @@ public class Session
             return false;
         }
 
+        if(Players.Count <= 0)
+        {
+            _previousTime = DateTime.Now;
+        }
+
         Players.Add(player);
         return true;
+    }
+
+    public void SetAsOngoing(int missingPlayersCount, Guid serverToken)
+    {
+        MissingPlayersCount = missingPlayersCount;
+        OwnerToken = serverToken;
     }
 
     /// <summary>
@@ -74,11 +74,20 @@ public class Session
     /// <returns>Session is ready to start</returns>
     public bool IsReady()
     {
-        if(Players.Count >= _mm.Settings.MaxPlayer)
+        if(MissingPlayersCount > 0 && Players.Count >= MissingPlayersCount)
+        {
             return true;
+        }
+
+        if(Players.Count >= _mm.Settings.MaxPlayer)
+        {
+            return true;
+        }
 
         if(Players.Count >= _mm.Settings.MinPlayers && _activeTimer > _mm.Settings.MinimumWaitTime)
+        {
             return true;
+        }
 
         return false;
     }
@@ -89,18 +98,6 @@ public class Session
     public void Start()
     {
         IsStarted = true;
-    }
-
-    /// <summary>
-    /// Reset fields and properties to default, keeping Id
-    /// </summary>
-    public Session Recycle()
-    {
-        IsStarted = false;
-        IsActive = false;
-        _activeTimer = 0f;
-        Players.Clear();
-        return this;
     }
 
     /// <summary>
@@ -117,8 +114,13 @@ public class Session
     /// <returns>Minimum wait time is met</returns>
     public bool MinimumTimeWaited()
     {
+        if(IsOngoing)
+        {
+            return false;
+        }
+
         var timeNow = DateTime.Now;
-        
+
         if(!MinimumPlayerCountReached())
         {
             _activeTimer = 0f;
@@ -133,5 +135,23 @@ public class Session
         _activeTimer += (float)difference.TotalSeconds;
 
         return _activeTimer > _mm.Settings.MinimumWaitTime;
+    }
+
+
+    /// <summary>
+    /// Reset fields and properties to default, keeping Id
+    /// </summary>
+    public Session Recycle()
+    {
+        IsStarted = false;
+
+        _activeTimer = 0f;
+
+        MissingPlayersCount = 0;
+        OwnerToken = Guid.Empty;
+
+        Players.Clear();
+
+        return this;
     }
 }

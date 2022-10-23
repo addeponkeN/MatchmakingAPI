@@ -12,10 +12,11 @@ namespace Rovio.Matchmaking.Client
 
         private static async Task Main(params string[] args)
         {
-            string address = "localhost";
-            int port = 5000;
+            var address = "localhost";
+            var port = 5000;
+            var continent = Continents.EU;
 
-            _client = new MatchmakingClient(address, port);
+            _client = new MatchmakingClient(continent, address, port);
 
             await ChooseGameService();
             await ApiCallSimulator();
@@ -46,9 +47,9 @@ namespace Rovio.Matchmaking.Client
                 GameServiceId = chosenService.GameServiceId,
             });
 
-            if(response == null || response.IsSuccessStatusCode)
+            if(response.IsSuccessStatusCode)
             {
-                var validation = _client.GetServerInfo;
+                var validation = _client.ValidatedServer;
                 Log.Debug($"Registering complete!");
                 Log.Debug($"Your token '{validation.ServerId}'");
                 Log.Debug();
@@ -71,13 +72,15 @@ namespace Rovio.Matchmaking.Client
             while(true)
             {
                 int index = ConsoleExtended.RequestChoice(
-                    $"Matchmaking API - Your token: '{_client.GetServerInfo.ServerId}'\n\nChoose API call\n",
+                    $"Matchmaking API - Your token: '{_client.ValidatedServer.ServerId}'\n\nChoose API call\n",
                     "Add player to matchmaking",
                     "Add specified player to matchmaking",
                     "Add an ongoing session that is missing player(s)",
-                    "Add random amount of players to matchmaking",
+                    "Add 1,000,000 - 2,000,000 random players to matchmaking",
                     "Get ready sessions",
-                    "Get ready sessions and save to file (..\\readysessions.json)");
+                    "Get ready sessions and save to file (..\\readysessions.json)",
+                    "Get ready ongoing sessions"
+                    );
 
                 index++;
 
@@ -108,6 +111,7 @@ namespace Rovio.Matchmaking.Client
                         string name;
                         Continents continent;
 
+                        Console.Clear();
                         name = ConsoleExtended.RequestString("Name: ");
                         if(string.IsNullOrEmpty(name))
                             name = "Donald";
@@ -130,6 +134,23 @@ namespace Rovio.Matchmaking.Client
                     {
                         Continents continent = Continents.EU;
                         int missingPlayerCount = Random.Shared.Next(1, 4);
+
+                        var match = new OngoingSessionsModel()
+                        {
+                            Continent = continent,
+                            MissingPlayersCount = missingPlayerCount,
+                        };
+
+                        var matchResponse = await _client.AddOngoingMatch(match);
+
+                        if(matchResponse.IsSuccessStatusCode)
+                        {
+                            Log.Debug("Added ongoing match");
+                        }
+                        else
+                        {
+                            Log.Debug(matchResponse.StatusCode.ToStringEnum());
+                        }
                         
                         break;
                     }
@@ -139,11 +160,11 @@ namespace Rovio.Matchmaking.Client
                     case 4:
                     {
                         int count = Random.Shared.Next(1_000_000, 2_000_000);
-                        // count = 10_000;
+                        count = 100;
 
                         var list = new List<PlayerModel>(count);
 
-                        Log.Debug($"Generating '{count}' players");
+                        Log.Debug($"Generating '{count}' players...");
 
                         for(int i = 0; i < count; i++)
                         {
@@ -155,6 +176,8 @@ namespace Rovio.Matchmaking.Client
                             Players = list
                         };
 
+                        Log.Debug($"Adding '{count} players...");
+                        
                         var response = await _client.AddPlayers(group);
 
                         if(response.IsSuccessStatusCode)
@@ -189,6 +212,18 @@ namespace Rovio.Matchmaking.Client
                         JsonHelper.Save(path, readySessions);
 
                         Log.Debug($"Saved '{sessionCount}' ReadySessions to {path}");
+                        break;
+                    }
+                    
+                                        
+                    //  GET READY ONGOING SESSIONS
+                    case 7:
+                    {
+                        var sessions = await _client.GetReadyOngoingSessions();
+
+                        int sessionCount = sessions == null ? 0 : sessions.Sessions.Count();
+                        
+                        Log.Debug($"Got '{sessionCount}' ready ongoing sessions");
                         break;
                     }
                 }
