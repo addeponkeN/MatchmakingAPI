@@ -12,7 +12,7 @@
 - Supports Drop-in matchmaking (Players can join an ongoing session)
 
 
-# How it works
+## How it works
 
 ### Step by step
 
