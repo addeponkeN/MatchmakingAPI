@@ -5,6 +5,8 @@ namespace Rovio.Matchmaking;
 /// </summary>
 public class MatchmakingSettings
 {
+    internal MatchmakingManager manager;
+    
     /// <summary>
     /// Minimum player count before the game can start
     /// </summary>
@@ -19,4 +21,5 @@ public class MatchmakingSettings
     /// Minimum wait time before the game can start
     /// </summary>
     public float MinimumWaitTime { get; set; } = 6f;
+    
 }

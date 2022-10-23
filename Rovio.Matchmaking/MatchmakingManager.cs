@@ -4,6 +4,7 @@ public class MatchmakingManager
 {
     private Dictionary<Guid, Matchmaker> _matchmakers = new();
     private List<Matchmaker> _matchmakersList = new();
+    private Stack<Player> _pool = new();
 
     /// <summary>
     /// Add a matchmaker.
@@ -12,6 +13,7 @@ public class MatchmakingManager
     /// <param name="matchmaker">New matchmaker</param>
     public void Add(Matchmaker matchmaker)
     {
+        matchmaker.Settings.manager = this;
         _matchmakersList.Add(matchmaker);
         _matchmakers.Add(matchmaker.GameServiceId, matchmaker);
     }
@@ -37,5 +39,15 @@ public class MatchmakingManager
         {
             _matchmakersList[i].Update();
         }
+    }
+
+    public Player CreatePlayer()
+    {
+        return _pool.Count > 0 ? _pool.Pop() : new();
+    }
+
+    public void ReturnPlayer(Player player)
+    {
+        _pool.Push(player);
     }
 }

@@ -11,14 +11,14 @@ public class SessionContainer
     public Continents Continent { get; }
 
 //  MATCH COLLECTIONS
-    private List<Session> _readySessions = new();
-    private Stack<Session> _emptySessions = new();
-    private Queue<Session> _ongoingSessions = new();
-    private Dictionary<Guid, List<Session>> _readyOngoingSessions = new();
+    private List<MatchmakingSession> _readySessions = new();
+    private Stack<MatchmakingSession> _emptySessions = new();
+    private Queue<MatchmakingSession> _ongoingSessions = new();
+    private Dictionary<Guid, List<MatchmakingSession>> _readyOngoingSessions = new();
 
 //  PRIVATE FIELDS
     private Matchmaker _mm;
-    private Session _currentSession;
+    private MatchmakingSession _currentMatchmakingSession;
     private bool _isSetToClear;
 
     public SessionContainer(Matchmaker mm, Continents cont)
@@ -26,28 +26,28 @@ public class SessionContainer
         _mm = mm;
         Continent = cont;
 
-        _currentSession = GetNewSession();
+        _currentMatchmakingSession = GetNewSession();
     }
 
     /// <summary>
     /// Get an empty inactive session
     /// </summary>
     /// <returns>Empty session</returns>
-    public Session GetNewSession(bool ignoreOngoingSessions = false)
+    public MatchmakingSession GetNewSession(bool ignoreOngoingSessions = false)
     {
-        Session session;
+        MatchmakingSession matchmakingSession;
 
         if(!ignoreOngoingSessions && _ongoingSessions.Count > 0)
         {
-            session = _ongoingSessions.Dequeue();
+            matchmakingSession = _ongoingSessions.Dequeue();
             Log.Debug("New session is ongoing");
         }
         else
         {
-            session = _emptySessions.Count <= 0 ? _mm.CreateSession() : _emptySessions.Pop();
+            matchmakingSession = _emptySessions.Count <= 0 ? _mm.CreateSession() : _emptySessions.Pop();
         }
 
-        return session;
+        return matchmakingSession;
     }
 
     /// <summary>
@@ -68,18 +68,18 @@ public class SessionContainer
     /// Get the current session that is being used to match players
     /// </summary>
     /// <returns>Current session</returns>
-    public Session GetCurrentSession()
+    public MatchmakingSession GetCurrentSession()
     {
-        return _currentSession.IsStarted
-            ? _currentSession = GetNewSession()
-            : _currentSession;
+        return _currentMatchmakingSession.IsStarted
+            ? _currentMatchmakingSession = GetNewSession()
+            : _currentMatchmakingSession;
     }
 
     /// <summary>
     /// Pop all ready sessions and marks the container to recycle all sessions
     /// </summary>
     /// <returns>All ready sessions</returns>
-    public IEnumerable<Session> PopReadySessions()
+    public IEnumerable<MatchmakingSession> PopReadySessions()
     {
         //  Clear all ready sessions if the container has already been marked to clear
         //  and return an empty collection
@@ -101,7 +101,7 @@ public class SessionContainer
     /// Pop all ready ongoing sessions and marks the container to recycle all sessions
     /// </summary>
     /// <returns>All ready sessions</returns>
-    public IEnumerable<Session> PopReadyOngoingSessions(Guid serverToken)
+    public IEnumerable<MatchmakingSession> PopReadyOngoingSessions(Guid serverToken)
     {
         //  Clear all ready sessions if the container has already been marked to clear
         //  and return an empty collection
@@ -142,24 +142,24 @@ public class SessionContainer
 
     /// <summary>
     /// Mark a session as ready and add it to the ready sessions collection
-    /// If the container has been marked to clear, clear & recycle all ready sessions and then add <param name="session"></param>
+    /// If the container has been marked to clear, clear & recycle all ready sessions and then add <param name="matchmakingSession"></param>
     /// </summary>
-    /// <param name="session">Session to be marked as ready</param>
-    public void SetSessionReady(Session session)
+    /// <param name="matchmakingSession">Session to be marked as ready</param>
+    public void SetSessionReady(MatchmakingSession matchmakingSession)
     {
-        session.Start();
+        matchmakingSession.Start();
 
         // Add the session to the ready ongoing session collection if it is an ongoing session 
-        if(session.IsOngoing)
+        if(matchmakingSession.IsOngoing)
         {
-            if(!_readyOngoingSessions.TryGetValue(session.OwnerToken, out var list))
+            if(!_readyOngoingSessions.TryGetValue(matchmakingSession.OwnerToken, out var list))
             {
-                _readyOngoingSessions.Add(session.OwnerToken, list = new List<Session>());
+                _readyOngoingSessions.Add(matchmakingSession.OwnerToken, list = new List<MatchmakingSession>());
             }
 
-            list.Add(session);
+            list.Add(matchmakingSession);
 
-            Log.Debug($"ongoing ready session done! - owner token: {session.OwnerToken}");
+            Log.Debug($"ongoing ready session done! - owner token: {matchmakingSession.OwnerToken}");
         }
         else
         {
@@ -168,18 +168,18 @@ public class SessionContainer
                 ClearReadySessions();
             }
 
-            _readySessions.Add(session);
+            _readySessions.Add(matchmakingSession);
         }
     }
 
     public void UpdateCurrentSession()
     {
-        if(_currentSession.MinimumTimeWaited())
+        if(_currentMatchmakingSession.MinimumTimeWaited())
         {
-            if(_currentSession.IsReady())
+            if(_currentMatchmakingSession.IsReady())
             {
-                SetSessionReady(_currentSession);
-                Log.Debug($"Minimum time waited - Starting session with '{_currentSession.Players.Count}' players");
+                SetSessionReady(_currentMatchmakingSession);
+                Log.Debug($"Minimum time waited - Starting session with '{_currentMatchmakingSession.Players.Count}' players");
                 GetCurrentSession();
             }
         }

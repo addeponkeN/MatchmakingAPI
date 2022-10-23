@@ -5,7 +5,7 @@ namespace Rovio.Matchmaking;
 /// <summary>
 /// Match session
 /// </summary>
-public class Session
+public class MatchmakingSession
 {
     /// <summary>
     /// Session id/key
@@ -34,7 +34,7 @@ public class Session
     private float _activeTimer;
     private Matchmaker _mm;
 
-    public Session(Matchmaker mm)
+    public MatchmakingSession(Matchmaker mm)
     {
         _mm = mm;
         Players = new();
@@ -141,7 +141,7 @@ public class Session
     /// <summary>
     /// Reset fields and properties to default, keeping Id
     /// </summary>
-    public Session Recycle()
+    public MatchmakingSession Recycle()
     {
         IsStarted = false;
 
@@ -149,6 +149,11 @@ public class Session
 
         MissingPlayersCount = 0;
         OwnerToken = Guid.Empty;
+
+        for(int i = 0; i < Players.Count; i++)
+        {
+            _mm.Settings.manager.ReturnPlayer(Players[i]);
+        }
 
         Players.Clear();
 

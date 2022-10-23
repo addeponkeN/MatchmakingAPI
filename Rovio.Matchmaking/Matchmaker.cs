@@ -70,9 +70,9 @@ public class Matchmaker
     /// Creates a new Session with a new id.
     /// </summary>
     /// <returns></returns>
-    public Session CreateSession()
+    public MatchmakingSession CreateSession()
     {
-        return new Session(this) {Id = _idGenerator.GetId()};
+        return new MatchmakingSession(this) {Id = _idGenerator.GetId()};
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public class Matchmaker
     /// </summary>
     /// <param name="continent"></param>
     /// <returns>Collection of all ready sessions</returns>
-    public IEnumerable<Session> PopReadySessions(Continents continent)
+    public IEnumerable<MatchmakingSession> PopReadySessions(Continents continent)
     {
         var container = GetContainer(continent);
         return container.PopReadySessions();
@@ -104,7 +104,7 @@ public class Matchmaker
     /// <param name="continent"></param>
     /// <param name="serverToken"></param>
     /// <returns>Collection of all ready sessions</returns>
-    public IEnumerable<Session> PopReadyOngoingSessions(Continents continent, Guid serverToken)
+    public IEnumerable<MatchmakingSession> PopReadyOngoingSessions(Continents continent, Guid serverToken)
     {
         var container = GetContainer(continent);
         var sessions = container.PopReadyOngoingSessions(serverToken);

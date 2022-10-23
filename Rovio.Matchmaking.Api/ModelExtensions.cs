@@ -1,21 +1,17 @@
-using Rovio.Matchmaking.Models;
-
 namespace Rovio.Matchmaking.Api;
 
 public static class ModelExtensions
 {
-    public static Player ToMatchmakePlayer(this Models.Player model)
+    public static Player ToMatchmakePlayer(this Models.Player model, MatchmakingManager mm)
     {
-        return new()
-        {
-            Key = model.Key,
-            Rank = model.Rank,
-            Continent = model.Continent
-        };
+        var player = mm.CreatePlayer();
+        player.Set(model.Key, model.Continent, model.Rank);
+        return player;
     }
 
     public static Models.Player ToPlayerModel(this Player player)
     {
+        //  todo - pooling
         return new()
         {
             Key = player.Key,
@@ -29,16 +25,16 @@ public static class ModelExtensions
         return list.Select(item => item.ToPlayerModel()).ToList();
     }
 
-    public static Models.Session ToModel(this Session session)
+    public static Models.Session ToModel(this MatchmakingSession matchmakingSession)
     {
         return new Models.Session()
         {
-            Key = session.Id,
-            Players = session.Players.ToPlayerModels()
+            Key = matchmakingSession.Id,
+            Players = matchmakingSession.Players.ToPlayerModels()
         };
     }
 
-    public static IEnumerable<Models.Session> ToModels(this IEnumerable<Session> sessions)
+    public static IEnumerable<Models.Session> ToModels(this IEnumerable<MatchmakingSession> sessions)
     {
         return sessions.Select(session => session.ToModel());
     }

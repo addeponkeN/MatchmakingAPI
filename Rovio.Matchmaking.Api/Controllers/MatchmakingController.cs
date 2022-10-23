@@ -68,7 +68,7 @@ public class MatchmakingController : ControllerBase
             return Problem(title: "Internal matchmaking error");
         }
 
-        matchmaker.AddPlayer(player.ToMatchmakePlayer());
+        matchmaker.AddPlayer(player.ToMatchmakePlayer(_manager));
 
         return Ok();
     }
@@ -114,7 +114,7 @@ public class MatchmakingController : ControllerBase
         //  add members to matchmaking
         foreach(var p in group.Players)
         {
-            matchmaker.AddPlayer(p.ToMatchmakePlayer());
+            matchmaker.AddPlayer(p.ToMatchmakePlayer(_manager));
         }
 
         return Ok();
