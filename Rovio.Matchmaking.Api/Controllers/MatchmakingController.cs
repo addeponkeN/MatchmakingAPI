@@ -5,6 +5,12 @@ using Rovio.Utility;
 
 namespace Rovio.Matchmaking.Api.Controllers;
 
+/// <summary>
+/// Handles the Matchmaking API calls.
+/// A token is required to make any calls.
+/// A token can be retrieved from the <see cref="GameServicesController"/>.
+/// <remarks>Note to self: A token may not be required if used internally!</remarks>
+/// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
 public class MatchmakingController : ControllerBase
@@ -25,12 +31,13 @@ public class MatchmakingController : ControllerBase
     [HttpGet("test")]
     public async Task<ActionResult<int>> GetTest()
     {
-        return Ok(5);
+        return Ok(1337);
     }
 
     /// <summary>
     /// Adds a player to the matchmaking queue
     /// </summary>
+    /// <param name="token">Server token</param>
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/add/{player}")]
@@ -38,27 +45,27 @@ public class MatchmakingController : ControllerBase
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
-            return Problem(title: "Invalid token", statusCode: 101);
+            return Problem(title: "Invalid token");
         }
-
-        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
-        {
-            return Problem(title: "Internal matchmaking error", statusCode: 103);
-        }
-
+        
         if(player == null)
         {
-            return Problem(title: "Invalid player info", statusCode: 101);
+            return Problem(title: "Invalid player info");
         }
 
         if(!player.Key.IsValid())
         {
-            return Problem(title: "Invalid player id/key", statusCode: 102);
+            return Problem(title: "Invalid player id/key");
         }
 
         if(player.Continent == Continents.None)
         {
-            return Problem(title: "Invalid player continent", statusCode: 103);
+            return Problem(title: "Invalid player continent");
+        }
+
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error");
         }
 
         matchmaker.AddPlayer(player.ToMatchmakePlayer());
@@ -69,6 +76,7 @@ public class MatchmakingController : ControllerBase
     /// <summary>
     /// Adds players to the matchmaking queue
     /// </summary>
+    /// <param name="token">Server token</param>
     /// <param name="groupModel">Players to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/addrange/{groupModel}")]
@@ -115,6 +123,7 @@ public class MatchmakingController : ControllerBase
     /// <summary>
     /// Get all sessions that are ready to be started
     /// </summary>
+    /// <param name="token">Server token</param>
     /// <param name="continent">The continent to get sessions from</param>
     /// <returns>List of all ready sessions</returns>
     [HttpGet("{token}/sessions/{continent}")]
@@ -144,9 +153,10 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Adds a player to the matchmaking queue
+    /// Add an OngoingSession to the matchmaker
     /// </summary>
-    /// <param name="sessionModel">Player to add</param>
+    /// <param name="token">Server token</param>
+    /// <param name="sessionModel">Session to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/sessions/addmissing/{sessionModel}")]
     public async Task<ActionResult> AddOngoingSession(Guid token, OngoingSessionsModel sessionModel)

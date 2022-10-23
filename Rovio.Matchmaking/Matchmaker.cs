@@ -5,20 +5,28 @@ namespace Rovio.Matchmaking;
 
 public class Matchmaker
 {
+    /// <summary>
+    /// The game service id
+    /// </summary>
     public Guid GameServiceId { get; init; }
+    
+    /// <summary>
+    /// Matchmaking settings
+    /// </summary>
     public MatchmakingSettings Settings { get; }
 
+    /// <summary>
+    /// Generates id's to newly created sessions
+    /// </summary>
     private IdGenerator _idGenerator;
+    
     private Dictionary<Continents, SessionContainer> _containers;
     private List<SessionContainer> _containerList;
     private Queue<Player> _players;
 
     private object _queueLocker = new();
 
-    public Matchmaker(Guid gameServiceId) : this(gameServiceId, new MatchmakingSettings())
-    {
-    }
-
+    public Matchmaker(Guid gameServiceId) : this(gameServiceId, new MatchmakingSettings()) { }
     public Matchmaker(Guid gameServiceId, MatchmakingSettings settings)
     {
         GameServiceId = gameServiceId;
@@ -31,6 +39,9 @@ public class Matchmaker
         AddContainers();
     }
 
+    /// <summary>
+    /// Add a session container for each continent.
+    /// </summary>
     private void AddContainers()
     {
         var continents = Enum.GetValues<Continents>();
@@ -42,16 +53,29 @@ public class Matchmaker
         }
     }
 
-    public SessionContainer GetContainer(Continents cont)
+    /// <summary>
+    /// Get a container by continent.
+    /// </summary>
+    /// <param name="continent"></param>
+    /// <returns>Session container by continent</returns>
+    public SessionContainer GetContainer(Continents continent)
     {
-        return _containers[cont];
+        return _containers[continent];
     }
 
+    /// <summary>
+    /// Creates a new Session with a new id.
+    /// </summary>
+    /// <returns></returns>
     public Session CreateSession()
     {
         return new Session(this) {Id = _idGenerator.GetId()};
     }
-
+    
+    /// <summary>
+    /// Add a player to the matchmaker
+    /// </summary>
+    /// <param name="player">Player to add</param>
     public void AddPlayer(Player player)
     {
         lock(_queueLocker)
@@ -60,18 +84,29 @@ public class Matchmaker
         }
     }
 
+    /// <summary>
+    /// Return and remove all sessions that is ready start.
+    /// </summary>
+    /// <param name="continent"></param>
+    /// <returns>Collection of all ready sessions</returns>
     public IEnumerable<Session> PopReadySessions(Continents continent)
     {
         var container = GetContainer(continent);
         return container.PopReadySessions();
     }
 
+    /// <summary>
+    /// Updates matchmaking and all containers current session
+    /// </summary>
     public void Update()
     {
         UpdateMatchmaking();
         UpdateSessions();
     }
 
+    /// <summary>
+    /// Update all sessions
+    /// </summary>
     public void UpdateSessions()
     {
         for(int i = 0; i < _containerList.Count; i++)
@@ -81,6 +116,10 @@ public class Matchmaker
         }
     }
 
+    /// <summary>
+    /// Matches players to a session.
+    /// Marks sessions as ready if the minimum start requirements are met.
+    /// </summary>
     private void UpdateMatchmaking()
     {
         int playerCount;
@@ -110,14 +149,17 @@ public class Matchmaker
 
             lock(_queueLocker)
             {
+                // matchmake next player
                 player = _players.Dequeue();
             }
 
+            //  get session container by the player's preferred continent
+            //  add the player to the current session.
             var container = GetContainer(player.Continent);
             var session = container.GetCurrentSession();
-
             session.AddPlayer(player);
 
+            //  start the session if the minimum start requirements are met
             if(session.IsReady())
             {
                 container.SetSessionReady(session);

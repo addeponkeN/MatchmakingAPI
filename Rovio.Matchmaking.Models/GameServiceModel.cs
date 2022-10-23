@@ -1,12 +1,15 @@
 namespace Rovio.Matchmaking.Models;
 
+/// <summary>
+/// 
+/// </summary>
 public record GameServiceModel
 {
-    public Guid Id { get; init; }
-    public string Name { get; init; }
+    public Guid GameServiceId { get; init; }
+    public string GameName { get; init; }
 
     public override string ToString()
     {
-        return Name;
+        return GameName;
     }
 }

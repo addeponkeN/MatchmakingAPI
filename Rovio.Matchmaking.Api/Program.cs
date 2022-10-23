@@ -7,12 +7,11 @@ namespace Rovio.Matchmaking.Api;
 public class Program
 {
     private static WebApplication _app;
-
-    private static MatchmakingManager mmManager;
+    private static MatchmakingManager matchmakingManager;
 
     public static void Main(params string[] args)
     {
-        mmManager = new();
+        matchmakingManager = new();
 
         BuildApplication(args);
         SetupApplication();
@@ -21,12 +20,12 @@ public class Program
     private static void SetupServices(IServiceCollection services)
     {
         services.AddSingleton<IClientRepository, ServerRepository>();
-        services.AddSingleton<MatchmakingManager>(mmManager);
+        services.AddSingleton<MatchmakingManager>(matchmakingManager);
 
         services.AddHostedService(_ =>
         {
             var mmService = new MatchmakingService();
-            mmService.Init(mmManager);
+            mmService.Init(matchmakingManager);
             return mmService;
         });
 

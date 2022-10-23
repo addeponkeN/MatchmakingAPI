@@ -2,6 +2,9 @@ using Rovio.Utility;
 
 namespace Rovio.Matchmaking;
 
+/// <summary>
+/// Matchmaking player
+/// </summary>
 public class Player
 {
     /// <summary>
@@ -10,7 +13,7 @@ public class Player
     public UniqueKey Key { get; init; }
 
     /// <summary>
-    /// Where the player is connecting from
+    /// The players preferred continent
     /// </summary>
     public Continents Continent { get; init; }
     

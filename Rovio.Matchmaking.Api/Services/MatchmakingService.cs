@@ -1,4 +1,3 @@
-
 namespace Rovio.Matchmaking.Api.Services;
 
 public class MatchmakingService : BackgroundService
@@ -7,29 +6,29 @@ public class MatchmakingService : BackgroundService
     /// In milliseconds
     /// </summary>
     private int _updateFrequency;
-    
-    private MatchmakingManager _manager;
+
+    private MatchmakingManager _mm;
 
     public void Init(MatchmakingManager mm)
     {
-        _manager = mm;
+        _mm = mm;
     }
-    
-    //  todo : load from config
+
     public void LoadSettings()
     {
+        //  Temporary - should load from config/settings
         _updateFrequency = 50;
     }
-    
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         LoadSettings();
-        
+
         while(!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(_updateFrequency);
             // Log.Debug("matchmaking");
-            _manager.Update();
+            _mm.Update();
         }
     }
 }

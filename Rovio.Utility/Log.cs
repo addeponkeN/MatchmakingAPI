@@ -9,6 +9,8 @@ public static class Log
     /// </summary>
     public static bool ShowTimestamp = true;
 
+    public static bool Enabled = true;
+
     public static DateTimeFormat Format = () => _centralEuTime.ToShortTimeString();
 
     private static ConsoleExtended.PrintLine _printLine = Console.WriteLine;
@@ -29,9 +31,11 @@ public static class Log
     /// <summary>
     /// Debug logging
     /// </summary>
-    /// <param name="msg">Console message</param>
+    /// <param name="msg">Debug message</param>
     public static void Debug(string msg)
     {
+        if(!Enabled) return;
+        
         Console.ResetColor();
         
         if(ShowTimestamp)
@@ -42,17 +46,24 @@ public static class Log
         _printLine(msg);
     }
 
+    /// <summary>
+    /// New line
+    /// </summary>
     public static void Debug()
     {
+        if(!Enabled) return;
+
         _printLine("");
     }
 
     /// <summary>
-    /// Warning text, Yellow
+    /// Warning text, displayed in yellow
     /// </summary>
     /// <param name="msg">Console message</param>
     public static void Warning(string msg)
     {
+        if(!Enabled) return;
+
         Console.ForegroundColor = ConsoleColor.Yellow;
 
         if(ShowTimestamp)

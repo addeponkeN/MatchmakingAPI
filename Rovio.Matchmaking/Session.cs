@@ -24,6 +24,9 @@ public class Session
 
     public bool IsStarted { get; private set; }
 
+    /// <summary>
+    /// True if this session is the current session the matchmaker is using to match players.
+    /// </summary>
     public bool IsActive
     {
         get => _isActive;
@@ -109,9 +112,9 @@ public class Session
     }
 
     /// <summary>
-    /// Check of the minimum wait time
+    /// Check if the minimum wait time is met
     /// </summary>
-    /// <returns>Minimum time</returns>
+    /// <returns>Minimum wait time is met</returns>
     public bool MinimumTimeWaited()
     {
         var timeNow = DateTime.Now;

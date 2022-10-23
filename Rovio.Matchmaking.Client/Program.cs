@@ -33,17 +33,17 @@ namespace Rovio.Matchmaking.Client
 
             var chosenService = ConsoleExtended.RequestChoice(
                 "Select Game Server Type",
-                new GameServiceModel() {Name = "Angry Birds", Id = Guid.Parse("af3c0213-538e-4629-a725-ea56f8a3acec")},
-                new GameServiceModel() {Name = "Bad Piggies", Id = Guid.Parse("29f7cf48-8657-4849-9b26-9d19d81219f9")},
-                new GameServiceModel() {Name = "World Quest", Id = Guid.Parse("4c2afede-168c-44b0-a49d-07ed20e6480d")}
+                new GameServiceModel() {GameName = "Angry Birds", GameServiceId = Guid.Parse("af3c0213-538e-4629-a725-ea56f8a3acec")},
+                new GameServiceModel() {GameName = "Bad Piggies", GameServiceId = Guid.Parse("29f7cf48-8657-4849-9b26-9d19d81219f9")},
+                new GameServiceModel() {GameName = "World Quest", GameServiceId = Guid.Parse("4c2afede-168c-44b0-a49d-07ed20e6480d")}
             );
 
             Log.Debug();
-            Log.Debug($"Registering as '{chosenService.Name}'...");
+            Log.Debug($"Registering as '{chosenService.GameName}'...");
 
             var response = await _client.RegisterServer(new ServerModel
             {
-                GameServiceId = chosenService.Id,
+                GameServiceId = chosenService.GameServiceId,
             });
 
             if(response == null || response.IsSuccessStatusCode)

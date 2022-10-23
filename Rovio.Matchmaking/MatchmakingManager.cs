@@ -2,26 +2,35 @@ namespace Rovio.Matchmaking;
 
 public class MatchmakingManager
 {
-    public Dictionary<Guid, Matchmaker> Matchmakers { get; init; }
-    private List<Matchmaker> _matchmakersList;
+    private Dictionary<Guid, Matchmaker> _matchmakers = new();
+    private List<Matchmaker> _matchmakersList = new();
 
-    public MatchmakingManager()
+    /// <summary>
+    /// Add a matchmaker.
+    /// Should be called when a game service is added.
+    /// </summary>
+    /// <param name="matchmaker">New matchmaker</param>
+    public void Add(Matchmaker matchmaker)
     {
-        Matchmakers = new();
-        _matchmakersList = new();
-    }
-
-    public void Add(Matchmaker mm)
-    {
-        _matchmakersList.Add(mm);
-        Matchmakers.Add(mm.GameServiceId, mm);
+        _matchmakersList.Add(matchmaker);
+        _matchmakers.Add(matchmaker.GameServiceId, matchmaker);
     }
     
-    public bool TryGetMatchmaker(Guid id, out Matchmaker mm)
+    /// <summary>
+    /// Get 
+    /// </summary>
+    /// <param name="gameServiceId">Game service id</param>
+    /// <param name="matchmaker">Matchmaker with the <paramref name="gameServiceId"/></param>
+    /// <returns>A matchmaker matching the <paramref name="gameServiceId"/> from the collection</returns>
+    public bool TryGetMatchmaker(Guid gameServiceId, out Matchmaker matchmaker)
     {
-        return Matchmakers.TryGetValue(id, out mm);
+        return _matchmakers.TryGetValue(gameServiceId, out matchmaker);
     }
 
+    /// <summary>
+    /// Update all matchmakers.
+    /// Should be called at least once a second.
+    /// </summary>
     public void Update()
     {
         for(int i = 0; i < _matchmakersList.Count; i++)
