@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.Matchmaking.Api", "Rovio.Matchmaking.Api\Rovio.Matchmaking.Api.csproj", "{AEC8B258-FF4F-430F-B005-C220C10AD435}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{2877C5F7-5480-4490-80DB-581C5F74703D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.Matchmaking.Client", "Rovio.Matchmaking.Client\Rovio.Matchmaking.Client.csproj", "{025B4C7B-12A1-4C75-9851-176AEC42D1C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.Matchmaking.Models", "Rovio.Matchmaking.Models\Rovio.Matchmaking.Models.csproj", "{CD944B79-41A8-4735-BF5A-5D2E80A20B9B}"
@@ -11,6 +9,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.Utility", "Rovio.Utility\Rovio.Utility.csproj", "{E2DC1CF3-DD34-4DB0-A21F-454CC8BBE8ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rovio.Matchmaking", "Rovio.Matchmaking\Rovio.Matchmaking.csproj", "{04E66020-6924-4B9F-AFE9-5A181FE0C135}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatchmakingClientExample", "Examples\MatchmakingClientExample\MatchmakingClientExample.csproj", "{28ED9305-69DF-4541-9379-4463DA7EBBBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,8 +38,11 @@ Global
 		{04E66020-6924-4B9F-AFE9-5A181FE0C135}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04E66020-6924-4B9F-AFE9-5A181FE0C135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04E66020-6924-4B9F-AFE9-5A181FE0C135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28ED9305-69DF-4541-9379-4463DA7EBBBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28ED9305-69DF-4541-9379-4463DA7EBBBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28ED9305-69DF-4541-9379-4463DA7EBBBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28ED9305-69DF-4541-9379-4463DA7EBBBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{025B4C7B-12A1-4C75-9851-176AEC42D1C8} = {2877C5F7-5480-4490-80DB-581C5F74703D}
 	EndGlobalSection
 EndGlobal
