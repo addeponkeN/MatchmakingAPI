@@ -4,13 +4,21 @@
 
 
 
+## Features
+
+- Supports multiple games
+- Supports millions of players matchmaking at the same time
+- Continential matchmaking by player continent preference
+- Drop-in matchmaking
+
+
 # How it works
 
 ### Step by step
 
 #### Matchmaking
 
-- Server adds players to the matchmaker
+- Client adds players to the matchmaker
 - The matchmaker matches and adds players together to sessions
 - When a session has reached the minimum requirements to start a game, it gets added to a "ready sessions" collection
 - Server fetches the ready sessions, containg a match id and a collection of players
