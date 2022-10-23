@@ -26,6 +26,6 @@
 .
 .
 
-## Early Prototype Diagram :D
+## Early Prototype Programmer Art Diagram :D
 
 ![early prototype diagram](https://user-images.githubusercontent.com/17746816/197418742-647a11e6-1ca4-4763-993f-ae68476cb3b9.png)
