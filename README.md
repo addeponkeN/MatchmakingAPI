@@ -8,8 +8,8 @@
 
 - Supports multiple games
 - Supports millions of players matchmaking at the same time
-- Continential matchmaking by player continent preference
-- Drop-in matchmaking
+- Match players together by latency (player location)
+- Supports Drop-in matchmaking
 
 
 # How it works
