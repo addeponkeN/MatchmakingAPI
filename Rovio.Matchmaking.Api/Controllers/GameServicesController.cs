@@ -19,7 +19,7 @@ public class GameServicesController : ControllerBase
     }
 
     /// <summary>
-    /// Returns a token that is needed for any matchmaking API calls.
+    /// Returns a token that is needed for the Matchmaking API calls.
     /// </summary>
     /// <param name="server">ServerModel containing a </param>
     /// <returns>A model containing the Game Service Id and the token that is required to make any Matchmaking API calls</returns>

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Rovio.Utility;
 
 public struct UniqueKey
@@ -8,7 +6,6 @@ public struct UniqueKey
     public static implicit operator UniqueKey(int id) => (uint)id;
     public static implicit operator UniqueKey(uint id) => new(id);
 
-    [JsonPropertyName("v")]
     public uint Value
     {
         get => _value;

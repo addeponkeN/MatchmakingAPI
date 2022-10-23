@@ -35,7 +35,7 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Adds a player to the matchmaking queue
+    /// Add a single player to the matchmaking queue
     /// </summary>
     /// <param name="token">Server token</param>
     /// <param name="player">Player to add</param>
@@ -74,26 +74,26 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Adds players to the matchmaking queue
+    /// Add multiple players to the matchmaking queue
     /// </summary>
     /// <param name="token">Server token</param>
-    /// <param name="groupModel">Players to add</param>
+    /// <param name="group">Players to add</param>
     /// <returns>API result</returns>
-    [HttpPost("{token}/players/addrange/{groupModel}")]
-    public async Task<ActionResult> AddPlayers(Guid token, PlayerGroupModel groupModel)
+    [HttpPost("{token}/players/addrange/{group}")]
+    public async Task<ActionResult> AddPlayers(Guid token, PlayerGroupModel group)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
             return Problem(title: "Invalid token");
         }
 
-        if(groupModel == null)
+        if(group == null)
         {
             return Problem(title: "Invalid parameter");
         }
 
         //  validate all members
-        foreach(var p in groupModel.Players)
+        foreach(var p in group.Players)
         {
             if(!p.Key.IsValid())
             {
@@ -112,7 +112,7 @@ public class MatchmakingController : ControllerBase
         }
 
         //  add members to matchmaking
-        foreach(var p in groupModel.Players)
+        foreach(var p in group.Players)
         {
             matchmaker.AddPlayer(p.ToMatchmakePlayer());
         }
@@ -121,7 +121,7 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Get all sessions that are ready to be started
+    /// Get all ready sessions.
     /// </summary>
     /// <param name="token">Server token</param>
     /// <param name="continent">The continent to get sessions from</param>
@@ -153,13 +153,13 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Get all ongoing sessions
+    /// Get all ongoing sessions. 
     /// </summary>
     /// <param name="token">Server token</param>
     /// <param name="continent">The continent of the server</param>
     /// <returns>Collection of all ready ongoing sessions</returns>
     [HttpGet("{token}/sessions/ongoing/{continent}")]
-    public async Task<ActionResult<ReadySessionsModel>> GetReadyOngoingSessions(Guid token, Continents continent)
+    public async Task<ActionResult<ReadyOngoingSessionModel>> GetReadyOngoingSessions(Guid token, Continents continent)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -192,27 +192,27 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Add an OngoingSession to the matchmaker
+    /// Add an ongoing session to the matchmaker.
     /// </summary>
     /// <param name="token">Server token</param>
-    /// <param name="sessionModel">Session to add</param>
+    /// <param name="session">Session to add</param>
     /// <returns>API result</returns>
-    [HttpPost("{token}/sessions/addongoing/{sessionModel}")]
+    [HttpPost("{token}/sessions/addongoing/{session}")]
     public async Task<ActionResult> AddOngoingSession(
         Guid token,
-        OngoingSessionsModel sessionModel)
+        OngoingSessionsModel session)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
             return Problem(title: "Invalid token");
         }
 
-        if(sessionModel.MissingPlayersCount <= 0)
+        if(session.MissingPlayersCount <= 0)
         {
             return Problem(title: "Invalid missing player count");
         }
 
-        if(sessionModel.Continent == Continents.None)
+        if(session.Continent == Continents.None)
         {
             return Problem(title: "Invalid continent");
         }
@@ -223,10 +223,10 @@ public class MatchmakingController : ControllerBase
         }
 
         //  Get continent session container
-        var container = matchmaker.GetContainer(sessionModel.Continent);
+        var container = matchmaker.GetContainer(session.Continent);
 
         //  Create new session
-        container.AddOngoingSession(sessionModel.MissingPlayersCount, token);
+        container.AddOngoingSession(session.MissingPlayersCount, token);
 
         return Ok();
     }
