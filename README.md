@@ -10,7 +10,7 @@
 
 #### Matchmaking
 
-1 Server adds players to the matchmaker
-2 The matchmaker matches and adds players together to sessions
-3 When a session has reached the minimum requirements to start a game, it gets added to a "ready sessions" collection
-4 Server fetches the ready sessions, containg a match id and a collection of players
+- Server adds players to the matchmaker
+- The matchmaker matches and adds players together to sessions
+- When a session has reached the minimum requirements to start a game, it gets added to a "ready sessions" collection
+- Server fetches the ready sessions, containg a match id and a collection of players
