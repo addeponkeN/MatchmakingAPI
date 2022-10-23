@@ -4,7 +4,7 @@ namespace Rovio.Matchmaking.Api;
 
 public static class ModelExtensions
 {
-    public static Player ToMatchmakePlayer(this PlayerModel model)
+    public static Player ToMatchmakePlayer(this Models.Player model)
     {
         return new()
         {
@@ -14,7 +14,7 @@ public static class ModelExtensions
         };
     }
 
-    public static PlayerModel ToPlayerModel(this Player player)
+    public static Models.Player ToPlayerModel(this Player player)
     {
         return new()
         {
@@ -24,21 +24,21 @@ public static class ModelExtensions
         };
     }
 
-    public static List<PlayerModel> ToPlayerModels(this IEnumerable<Player> list)
+    public static List<Models.Player> ToPlayerModels(this IEnumerable<Player> list)
     {
         return list.Select(item => item.ToPlayerModel()).ToList();
     }
 
-    public static SessionModel ToModel(this Session session)
+    public static Models.Session ToModel(this Session session)
     {
-        return new SessionModel()
+        return new Models.Session()
         {
             Key = session.Id,
             Players = session.Players.ToPlayerModels()
         };
     }
 
-    public static IEnumerable<SessionModel> ToModels(this IEnumerable<Session> sessions)
+    public static IEnumerable<Models.Session> ToModels(this IEnumerable<Session> sessions)
     {
         return sessions.Select(session => session.ToModel());
     }

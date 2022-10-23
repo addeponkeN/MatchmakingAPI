@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Rovio.Matchmaking.Models;
 
-public record ServerModel
+public record Server
 {
     /// <summary>
     /// The Game Service Id

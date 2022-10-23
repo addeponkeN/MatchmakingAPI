@@ -8,7 +8,7 @@ namespace Rovio.Matchmaking.Api.Controllers;
 /// Handles out tokens to clients
 /// </summary>
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/game")]
 public class GameServicesController : ControllerBase
 {
     private IClientRepository _repository;
@@ -24,7 +24,7 @@ public class GameServicesController : ControllerBase
     /// <param name="server">ServerModel containing a </param>
     /// <returns>A model containing the Game Service Id and the token that is required to make any Matchmaking API calls</returns>
     [HttpPost("register/{server}")]
-    public ActionResult<ValidatedServerModel> RegisterGame(ServerModel server)
+    public ActionResult<ValidatedServer> RegisterGame(Server server)
     {
         //  Check and see if the Game Service Id is valid
         var success = _repository.TryRegisterServer(server, out var validatedServer);

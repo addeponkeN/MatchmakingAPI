@@ -13,7 +13,7 @@ namespace Rovio.Matchmaking.Models;
 /// <para>Name = n</para>
 /// <para>Continent = c</para>
 /// <para>Rank = r</para>
-public record PlayerModel
+public record Player
 {
     /// <summary>
     /// Unique id/key of the player

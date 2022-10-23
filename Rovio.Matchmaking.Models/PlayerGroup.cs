@@ -5,8 +5,8 @@ namespace Rovio.Matchmaking.Models;
 /// <summary>
 /// A collection of player models
 /// </summary>
-public record PlayerGroupModel
+public record PlayerGroup
 {
     [JsonPropertyName(PropertyAbbreviations.PlayerModelCollection)]
-    public IEnumerable<PlayerModel> Players { get; init; }
+    public IEnumerable<Player> Players { get; init; }
 }

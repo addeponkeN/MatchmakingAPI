@@ -12,7 +12,7 @@ namespace Rovio.Matchmaking.Api.Controllers;
 /// <remarks>Note to self: A token may not be required if used internally!</remarks>
 /// </summary>
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/matchmaking")]
 public class MatchmakingController : ControllerBase
 {
     private MatchmakingManager _manager;
@@ -41,7 +41,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/add/{player}")]
-    public async Task<ActionResult> AddPlayer(Guid token, PlayerModel player)
+    public async Task<ActionResult> AddPlayer(Guid token, Models.Player player)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -80,7 +80,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="group">Players to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/addrange/{group}")]
-    public async Task<ActionResult> AddPlayers(Guid token, PlayerGroupModel group)
+    public async Task<ActionResult> AddPlayers(Guid token, PlayerGroup group)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -127,7 +127,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="continent">The continent to get sessions from</param>
     /// <returns>List of all ready sessions</returns>
     [HttpGet("{token}/sessions/{continent}")]
-    public async Task<ActionResult<ReadySessionsModel>> GetReadySessions(Guid token, Continents continent)
+    public async Task<ActionResult<ReadySessions>> GetReadySessions(Guid token, Continents continent)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -142,7 +142,7 @@ public class MatchmakingController : ControllerBase
         //  Pop all ready sessions in the continent and convert to model
         var sessions = matchmaker.PopReadySessions(continent).ToModels();
 
-        var model = new ReadySessionsModel()
+        var model = new ReadySessions()
         {
             Sessions = sessions
         };
@@ -159,7 +159,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="continent">The continent of the server</param>
     /// <returns>Collection of all ready ongoing sessions</returns>
     [HttpGet("{token}/sessions/ongoing/{continent}")]
-    public async Task<ActionResult<ReadyOngoingSessionModel>> GetReadyOngoingSessions(Guid token, Continents continent)
+    public async Task<ActionResult<ReadyOngoingSession>> GetReadyOngoingSessions(Guid token, Continents continent)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -181,7 +181,7 @@ public class MatchmakingController : ControllerBase
         //  Pop all ready ongoing sessions in the continent that has been added by this token (server)
         var sessions = readyOngoingCollection.ToModels();
 
-        var model = new ReadyOngoingSessionModel()
+        var model = new ReadyOngoingSession()
         {
             Sessions = sessions
         };
@@ -200,7 +200,7 @@ public class MatchmakingController : ControllerBase
     [HttpPost("{token}/sessions/addongoing/{session}")]
     public async Task<ActionResult> AddOngoingSession(
         Guid token,
-        OngoingSessionsModel session)
+        OngoingSessions session)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {

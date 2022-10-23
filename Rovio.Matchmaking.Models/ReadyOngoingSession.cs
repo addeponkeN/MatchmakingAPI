@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace Rovio.Matchmaking.Models;
 
-public record ReadyOngoingSessionModel
+public record ReadyOngoingSession
 {
     [JsonPropertyName(PropertyAbbreviations.SessionCollection)]
-    public IEnumerable<SessionModel> Sessions { get; init; }
+    public IEnumerable<Session> Sessions { get; init; }
 }

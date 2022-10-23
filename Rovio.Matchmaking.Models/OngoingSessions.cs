@@ -9,7 +9,7 @@ namespace Rovio.Matchmaking.Models;
 /// and add the missing amount of players to the session.
 /// High priority session. 
 /// </summary>
-public class OngoingSessionsModel
+public class OngoingSessions
 {
     /// <summary>
     /// The location of the session

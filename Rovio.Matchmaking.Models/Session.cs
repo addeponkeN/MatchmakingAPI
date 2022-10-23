@@ -10,7 +10,7 @@ namespace Rovio.Matchmaking.Models;
 /// </summary>
 /// <para>Key = k</para>
 /// <para>Players = p</para>
-public record SessionModel
+public record Session
 {
     /// <summary>
     /// Unique id/key of the match
@@ -23,6 +23,6 @@ public record SessionModel
     /// Players that have been assigned to this match
     /// </summary>
     [JsonPropertyName(PropertyAbbreviations.PlayerModelCollection)]
-    public IEnumerable<PlayerModel> Players { get; init; }
+    public IEnumerable<Player> Players { get; init; }
     
 }

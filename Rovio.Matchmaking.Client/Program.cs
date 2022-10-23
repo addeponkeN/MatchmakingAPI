@@ -34,15 +34,15 @@ namespace Rovio.Matchmaking.Client
 
             var chosenService = ConsoleExtended.RequestChoice(
                 "Select Game Server Type",
-                new GameServiceModel() {GameName = "Angry Birds", GameServiceId = Guid.Parse("af3c0213-538e-4629-a725-ea56f8a3acec")},
-                new GameServiceModel() {GameName = "Bad Piggies", GameServiceId = Guid.Parse("29f7cf48-8657-4849-9b26-9d19d81219f9")},
-                new GameServiceModel() {GameName = "World Quest", GameServiceId = Guid.Parse("4c2afede-168c-44b0-a49d-07ed20e6480d")}
+                new GameService() {GameName = "Angry Birds", GameServiceId = Guid.Parse("af3c0213-538e-4629-a725-ea56f8a3acec")},
+                new GameService() {GameName = "Bad Piggies", GameServiceId = Guid.Parse("29f7cf48-8657-4849-9b26-9d19d81219f9")},
+                new GameService() {GameName = "World Quest", GameServiceId = Guid.Parse("4c2afede-168c-44b0-a49d-07ed20e6480d")}
             );
 
             Log.Debug();
             Log.Debug($"Registering as '{chosenService.GameName}'...");
 
-            var response = await _client.RegisterServer(new ServerModel
+            var response = await _client.RegisterServer(new Server
             {
                 GameServiceId = chosenService.GameServiceId,
             });
@@ -142,7 +142,7 @@ namespace Rovio.Matchmaking.Client
                         Continents continent = Continents.EU;
                         int missingPlayerCount = Random.Shared.Next(1, 4);
 
-                        var match = new OngoingSessionsModel()
+                        var match = new OngoingSessions()
                         {
                             Continent = continent,
                             MissingPlayersCount = missingPlayerCount,
@@ -208,7 +208,7 @@ namespace Rovio.Matchmaking.Client
 
         private static async Task AddPlayers(int count)
         {
-            var list = new List<PlayerModel>(count);
+            var list = new List<Player>(count);
 
             Log.Debug($"Generating '{count}' players...");
 
@@ -217,7 +217,7 @@ namespace Rovio.Matchmaking.Client
                 list.Add(GeneratePlayer());
             }
 
-            var group = new PlayerGroupModel()
+            var group = new PlayerGroup()
             {
                 Players = list
             };
@@ -232,7 +232,7 @@ namespace Rovio.Matchmaking.Client
             }
         }
 
-        private static PlayerModel GeneratePlayer()
+        private static Player GeneratePlayer()
         {
             var model = CreatePlayer(
                 // $"Goofy{Random.Shared.Next(int.MaxValue)}",
@@ -241,9 +241,9 @@ namespace Rovio.Matchmaking.Client
             return model;
         }
 
-        private static PlayerModel CreatePlayer(Continents continent, int rank)
+        private static Player CreatePlayer(Continents continent, int rank)
         {
-            var model = new PlayerModel()
+            var model = new Player()
             {
                 Key = _idPool++,
                 Continent = continent,

@@ -5,8 +5,8 @@ namespace Rovio.Matchmaking.Api.Repositories;
 
 public class ServerRepository : IClientRepository
 {
-    private Dictionary<Guid, GameServiceModel> _registeredServices = new();
-    private Dictionary<Guid, ValidatedServerModel> _validatedServers = new();
+    private Dictionary<Guid, GameService> _registeredServices = new();
+    private Dictionary<Guid, ValidatedServer> _validatedServers = new();
 
     private MatchmakingManager _mm;
     
@@ -26,23 +26,23 @@ public class ServerRepository : IClientRepository
 
     private void AddGameService(string name, string id)
     {
-        AddService(new GameServiceModel()
+        AddService(new GameService()
         {
             GameServiceId = Guid.Parse(id),
             GameName = name
         });
     }
 
-    private void AddService(GameServiceModel service)
+    private void AddService(GameService service)
     {
         Log.Debug($"Added game service: {service.GameName} ({service.GameServiceId})");
         _mm.Add(new Matchmaker(service.GameServiceId));
         _registeredServices.Add(service.GameServiceId, service);
     }
 
-    private ValidatedServerModel CreateValidatedServer(Guid gameServiceId)
+    private ValidatedServer CreateValidatedServer(Guid gameServiceId)
     {
-        return new ValidatedServerModel()
+        return new ValidatedServer()
         {
             ServerId = Guid.NewGuid(),
             GameServiceId = gameServiceId
@@ -56,7 +56,7 @@ public class ServerRepository : IClientRepository
 
 //  CLIENT REPOSITORY FUNCTIONS
 
-    public bool TryRegisterServer(ServerModel server, out ValidatedServerModel? validatedServer)
+    public bool TryRegisterServer(Server server, out ValidatedServer? validatedServer)
     {
         validatedServer = null;
 

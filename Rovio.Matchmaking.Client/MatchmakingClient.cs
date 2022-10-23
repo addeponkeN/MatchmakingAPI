@@ -10,7 +10,7 @@ namespace Rovio.Matchmaking.Client;
 /// </summary>
 public class MatchmakingClient
 {
-    public ValidatedServerModel ValidatedServer
+    public ValidatedServer ValidatedServer
     {
         get => _validatedServer;
         set => _validatedServer = value;
@@ -25,7 +25,7 @@ public class MatchmakingClient
     /// </summary>
     private HttpClient _client;
 
-    private ValidatedServerModel _validatedServer;
+    private ValidatedServer _validatedServer;
     private string _matchmakingRoute;
     private string _gameServiceRoute;
 
@@ -39,8 +39,8 @@ public class MatchmakingClient
             Timeout = TimeSpan.FromSeconds(60 * 5),
         };
 
-        _matchmakingRoute = "api/v1/Matchmaking/";
-        _gameServiceRoute = "api/v1/GameServices/";
+        _matchmakingRoute = "api/v1/matchmaking/";
+        _gameServiceRoute = "api/v1/game/";
 
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Accept.Add(
@@ -52,7 +52,7 @@ public class MatchmakingClient
     /// </summary>
     /// <param name="server"></param>
     /// <returns></returns>
-    public async Task<HttpResponseMessage> RegisterServer(ServerModel server)
+    public async Task<HttpResponseMessage> RegisterServer(Server server)
     {
         if(IsValidated)
         {
@@ -65,7 +65,7 @@ public class MatchmakingClient
 
         if(response.IsSuccessStatusCode)
         {
-            ValidatedServer = await response.Content.ReadFromJsonAsync<ValidatedServerModel>();
+            ValidatedServer = await response.Content.ReadFromJsonAsync<ValidatedServer>();
         }
 
         return response;
@@ -76,7 +76,7 @@ public class MatchmakingClient
     /// </summary>
     /// <param name="player">Player to add</param>
     /// <returns>Response</returns>
-    public async Task<HttpResponseMessage> AddPlayer(PlayerModel player)
+    public async Task<HttpResponseMessage> AddPlayer(Player player)
     {
         if(!IsValidated)
         {
@@ -93,7 +93,7 @@ public class MatchmakingClient
     /// </summary>
     /// <param name="groupModel">Group to add</param>
     /// <returns>Response</returns>
-    public async Task<HttpResponseMessage> AddPlayers(PlayerGroupModel groupModel)
+    public async Task<HttpResponseMessage> AddPlayers(PlayerGroup groupModel)
     {
         if(!IsValidated)
         {
@@ -109,7 +109,7 @@ public class MatchmakingClient
     /// Get all ready matches 
     /// </summary>
     /// <returns></returns>
-    public async Task<ReadySessionsModel> GetReadySessions()
+    public async Task<ReadySessions> GetReadySessions()
     {
         if(!IsValidated)
         {
@@ -120,11 +120,11 @@ public class MatchmakingClient
         HttpResponseMessage response = await _client.GetAsync(
             $"{_matchmakingRoute}{_validatedServer.ServerId}/sessions/{Continent}");
 
-        ReadySessionsModel sessions = null;
+        ReadySessions sessions = null;
 
         if(response.IsSuccessStatusCode)
         {
-            sessions = await response.Content.ReadFromJsonAsync<ReadySessionsModel>();
+            sessions = await response.Content.ReadFromJsonAsync<ReadySessions>();
         }
 
         return sessions;
@@ -134,7 +134,7 @@ public class MatchmakingClient
     /// Get all ready ongoing matches 
     /// </summary>
     /// <returns></returns>
-    public async Task<ReadyOngoingSessionModel> GetReadyOngoingSessions()
+    public async Task<ReadyOngoingSession> GetReadyOngoingSessions()
     {
         if(!IsValidated)
         {
@@ -145,11 +145,11 @@ public class MatchmakingClient
         HttpResponseMessage response = await _client.GetAsync(
             $"{_matchmakingRoute}{_validatedServer.ServerId}/sessions/ongoing/{Continent}");
 
-        ReadyOngoingSessionModel session = null;
+        ReadyOngoingSession session = null;
 
         if(response.IsSuccessStatusCode)
         {
-            session = await response.Content.ReadFromJsonAsync<ReadyOngoingSessionModel>();
+            session = await response.Content.ReadFromJsonAsync<ReadyOngoingSession>();
         }
 
         return session;
@@ -161,7 +161,7 @@ public class MatchmakingClient
     /// </summary>
     /// <param name="match">Ongoing session</param>
     /// <returns>Ongoing session response</returns>
-    public async Task<HttpResponseMessage> AddOngoingMatch(OngoingSessionsModel match)
+    public async Task<HttpResponseMessage> AddOngoingMatch(OngoingSessions match)
     {
         if(!IsValidated)
         {
