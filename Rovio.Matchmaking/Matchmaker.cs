@@ -188,7 +188,7 @@ public class Matchmaker
         }
 
         sw.Stop();
-        Console.WriteLine(
+        Log.Debug(
             $"time: {sw.Elapsed.TotalMilliseconds}ms  |  '{startedSessionsCount}' sessions started  |  '{startedOngoingSessionsCount}' ongoings started  |  '{length}' players matched");
     }
 }

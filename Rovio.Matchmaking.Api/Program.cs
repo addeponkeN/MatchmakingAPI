@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.OpenApi.Models;
 using Rovio.Matchmaking.Api.Repositories;
 using Rovio.Matchmaking.Api.Services;
+using Rovio.Utility;
 
 namespace Rovio.Matchmaking.Api;
 
@@ -15,6 +16,9 @@ public class Program
     {
         matchmakingManager = new();
 
+#if RELEASE
+        Log.Enabled = false;
+#endif
         BuildApplication(args);
         SetupApplication();
     }
@@ -34,7 +38,7 @@ public class Program
         services.AddSwaggerGen(x =>
         {
             x.SwaggerDoc("v1", new OpenApiInfo() {Title = "Matchmaking API", Version = "v1"});
-        
+
             x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = "JWT Authorization header using the bearer scheme",
@@ -42,7 +46,7 @@ public class Program
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey,
             });
-        
+
             x.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
@@ -57,11 +61,10 @@ public class Program
                     new List<string>()
                 }
             });
-        
+
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             x.IncludeXmlComments(xmlPath);
-        
         });
 
         services.Configure<IISServerOptions>(opt => { opt.MaxRequestBodySize = 300_000_000; });

@@ -25,7 +25,7 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Test
+    /// Returns 1337
     /// </summary>
     /// <returns>API result</returns>
     [HttpGet("test")]
@@ -177,7 +177,7 @@ public class MatchmakingController : ControllerBase
         {
             return Problem(title: "Internal matchmaking error");
         }
-        
+
         //  Pop all ready ongoing sessions in the continent that has been added by this token (server)
         var sessions = readyOngoingCollection.ToModels();
 
