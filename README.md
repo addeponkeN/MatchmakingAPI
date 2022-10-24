@@ -21,7 +21,7 @@
 - Client adds players to the matchmaker
 - The matchmaker matches and adds players together to sessions
 - When a session has reached the minimum requirements to start a game, it gets added to a "ready sessions" collection
-- The client can now fetch the "ready sessions" collection, containing collections of match ids and players
+- The client can now fetch the "ready sessions" collection, containing collections of session ids and players
 
 .
 .
