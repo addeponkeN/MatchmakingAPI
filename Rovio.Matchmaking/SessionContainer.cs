@@ -103,19 +103,6 @@ public class SessionContainer
     /// <returns>All ready sessions</returns>
     public IEnumerable<MatchmakingSession> PopReadyOngoingSessions(Guid serverToken)
     {
-        //  Clear all ready sessions if the container has already been marked to clear
-        //  and return an empty collection
-        if(_isSetToClear)
-        {
-            ClearReadySessions();
-        }
-
-        //  else mark to prepare clear and return all ready sessions
-        else
-        {
-            _isSetToClear = true;
-        }
-
         if(!_readyOngoingSessions.TryGetValue(serverToken, out var ongoingSessions))
         {
             return null;
