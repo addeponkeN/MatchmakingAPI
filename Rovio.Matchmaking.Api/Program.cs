@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.OpenApi.Models;
 using Rovio.Matchmaking.Api.Repositories;
 using Rovio.Matchmaking.Api.Services;
+using Rovio.Matchmaking.Api.Settings;
 using Rovio.Utility;
 
 namespace Rovio.Matchmaking.Api;
@@ -23,6 +24,27 @@ public class Program
         SetupApplication();
     }
 
+    private static MatchmakingApiSettings LoadSettings()
+    {
+        const string settingsFilename = "matchmakingsettings.json";
+        var path = Path.Combine(Directory.GetCurrentDirectory(), settingsFilename);
+
+        MatchmakingApiSettings settings;
+        
+        if(!File.Exists(path))
+        {
+            settings = MatchmakingApiSettings.Default;
+            JsonHelper.Save(path, settings);
+        }
+        else
+        {
+            settings = JsonHelper.Load<MatchmakingApiSettings>(path) 
+                       ?? MatchmakingApiSettings.Default;
+        }
+
+        return settings;
+    }
+    
     private static void SetupServices(IServiceCollection services)
     {
         services.AddSingleton<IClientRepository, ServerRepository>();
@@ -76,9 +98,11 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        var settings = LoadSettings();
+        
         SetupServices(builder.Services);
 
-        builder.WebHost.UseUrls("https://*:5000", "http://*:5001");
+        builder.WebHost.UseUrls(settings.ListenUrls.ToArray());
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();

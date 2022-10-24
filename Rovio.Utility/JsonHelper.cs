@@ -25,4 +25,24 @@ public static class JsonHelper
 
         return true;
     }
+    
+    public static T? Load<T>(string filePath) where T : new()
+    {
+        TextReader reader = null;
+        try
+        {
+            reader = new StreamReader(filePath);
+            var fileContents = reader.ReadToEnd();
+            return JsonSerializer.Deserialize<T>(fileContents);
+        }
+        catch
+        {
+            return default;
+        }
+        finally
+        {
+            if(reader != null)
+                reader.Close();
+        }
+    }
 }

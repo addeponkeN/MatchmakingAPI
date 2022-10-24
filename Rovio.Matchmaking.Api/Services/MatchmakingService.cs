@@ -27,7 +27,6 @@ public class MatchmakingService : BackgroundService
         while(!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(_updateFrequency);
-            // Log.Debug("matchmaking");
             _mm.Update();
         }
     }
