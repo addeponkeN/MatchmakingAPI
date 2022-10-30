@@ -22,7 +22,7 @@ public record Session
     /// <summary>
     /// Players that have been assigned to this match
     /// </summary>
-    [JsonPropertyName(PropertyAbbreviations.PlayerModelCollection)]
+    [JsonPropertyName(PropertyAbbreviations.PlayerCollection)]
     public IEnumerable<Player> Players { get; init; }
     
 }

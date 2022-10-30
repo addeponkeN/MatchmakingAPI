@@ -15,7 +15,7 @@ public static class PropertyAbbreviations
     /// Name
     /// </summary>
     // public const string PlayerModelName = "n";
-    public const string PlayerModelName = "Name";
+    public const string PlayerName = "Name";
     
     /// <summary>
     /// Continent
@@ -27,13 +27,13 @@ public static class PropertyAbbreviations
     /// Rank
     /// </summary>
     // public const string PlayerModelRank = "r";
-    public const string PlayerModelRank = "Rank";
+    public const string PlayerRank = "Rank";
 
     /// <summary>
     /// Players
     /// </summary>
     // public const string PlayerModelCollection = "p";
-    public const string PlayerModelCollection = "Players";
+    public const string PlayerCollection = "Players";
     
     /// <summary>
     /// MissingPlayerCount

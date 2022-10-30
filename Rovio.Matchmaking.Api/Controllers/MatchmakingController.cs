@@ -31,6 +31,7 @@ public class MatchmakingController : ControllerBase
     [HttpGet("test")]
     public async Task<ActionResult<int>> GetTest()
     {
+        await Task.Delay(100);
         return Ok(1337);
     }
 
@@ -41,7 +42,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/add/{player}")]
-    public async Task<ActionResult> AddPlayer(Guid token, Models.Player player)
+    public ActionResult AddPlayer(Guid token, Models.Player player)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -80,7 +81,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="group">Players to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/addrange/{group}")]
-    public async Task<ActionResult> AddPlayers(Guid token, PlayerGroup group)
+    public ActionResult AddPlayers(Guid token, PlayerGroup group)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -127,7 +128,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="continent">The continent to get sessions from</param>
     /// <returns>List of all ready sessions</returns>
     [HttpGet("{token}/sessions/{continent}")]
-    public async Task<ActionResult<ReadySessions>> GetReadySessions(Guid token, Continents continent)
+    public ActionResult<ReadySessions> GetReadySessions(Guid token, Continents continent)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -159,7 +160,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="continent">The continent of the server</param>
     /// <returns>Collection of all ready ongoing sessions</returns>
     [HttpGet("{token}/sessions/ongoing/{continent}")]
-    public async Task<ActionResult<ReadyOngoingSession>> GetReadyOngoingSessions(Guid token, Continents continent)
+    public ActionResult<ReadyOngoingSession> GetReadyOngoingSessions(Guid token, Continents continent)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {
@@ -198,7 +199,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="session">Session to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/sessions/addongoing/{session}")]
-    public async Task<ActionResult> AddOngoingSession(
+    public ActionResult AddOngoingSession(
         Guid token,
         OngoingSessions session)
     {

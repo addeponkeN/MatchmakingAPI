@@ -104,7 +104,7 @@ public class Matchmaker
     /// <param name="continent"></param>
     /// <param name="serverToken"></param>
     /// <returns>Collection of all ready sessions</returns>
-    public IEnumerable<MatchmakingSession> PopReadyOngoingSessions(Continents continent, Guid serverToken)
+    public IEnumerable<MatchmakingSession>? PopReadyOngoingSessions(Continents continent, Guid serverToken)
     {
         var container = GetContainer(continent);
         var sessions = container.PopReadyOngoingSessions(serverToken);

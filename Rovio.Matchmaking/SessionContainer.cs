@@ -101,7 +101,7 @@ public class SessionContainer
     /// Pop all ready ongoing sessions and marks the container to recycle all sessions
     /// </summary>
     /// <returns>All ready sessions</returns>
-    public IEnumerable<MatchmakingSession> PopReadyOngoingSessions(Guid serverToken)
+    public IEnumerable<MatchmakingSession>? PopReadyOngoingSessions(Guid serverToken)
     {
         if(!_readyOngoingSessions.TryGetValue(serverToken, out var ongoingSessions))
         {

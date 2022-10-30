@@ -33,7 +33,7 @@ public record Player
     /// The rank or skill level of the player
     /// </summary>
     [Required]
-    [JsonPropertyName(PropertyAbbreviations.PlayerModelRank)]
+    [JsonPropertyName(PropertyAbbreviations.PlayerRank)]
     [DefaultValue(1)]
     public int Rank { get; init; }
 

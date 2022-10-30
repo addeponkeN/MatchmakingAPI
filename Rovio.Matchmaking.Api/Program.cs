@@ -1,5 +1,9 @@
+using System.Net.Mime;
 using System.Reflection;
+using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Rovio.Matchmaking.Api.Repositories;
 using Rovio.Matchmaking.Api.Services;
@@ -89,6 +93,10 @@ public class Program
             x.IncludeXmlComments(xmlPath);
         });
 
+        services.AddHealthChecks().AddCheck(
+            name: "ready",
+            check: () => new HealthCheckResult(HealthStatus.Healthy, "Matchmaker is ready"));
+
         services.Configure<IISServerOptions>(opt => { opt.MaxRequestBodySize = 300_000_000; });
 
         services.Configure<KestrelServerOptions>(opt => { opt.Limits.MaxRequestBodySize = 300_000_000; });
@@ -122,6 +130,33 @@ public class Program
         _app.UseHttpsRedirection();
         _app.UseAuthorization();
         _app.MapControllers();
+
+        _app.UseRouting();
+
+        _app.UseEndpoints(ep =>
+        {
+            ep.MapControllers();
+            ep.MapHealthChecks("/hp/ready", new HealthCheckOptions()
+            {
+                Predicate = (check) => check.Tags.Contains("ready"),
+                ResponseWriter = async (context, report) =>
+                {
+                    var result = JsonSerializer.Serialize(new
+                    {
+                        status = report.Status.ToString(),
+                        checks = report.Entries.Select(e => new
+                        {
+                            name = e.Key, 
+                            status = e.Value.Status.ToString(),
+                            exception = e.Value.Exception != null ? e.Value.Exception.Message : "none",
+                            duration = e.Value.Duration.ToString()
+                        })
+                    });
+                    context.Request.ContentType = MediaTypeNames.Application.Json;
+                    await context.Response.WriteAsync(result);
+                }
+            });
+        });
 
         _app.Run();
     }
