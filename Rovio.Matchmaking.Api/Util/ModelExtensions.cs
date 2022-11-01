@@ -22,7 +22,10 @@ public static class ModelExtensions
 
     public static List<Models.Player> ToPlayerModels(this IEnumerable<Player> list)
     {
-        return list.Select(item => item.ToPlayerModel()).ToList();
+        var retList = new List<Models.Player>();
+        foreach(var p in list)
+            retList.Add(p.ToPlayerModel());
+        return retList;
     }
 
     public static Models.Session ToModel(this MatchmakingSession matchmakingSession)

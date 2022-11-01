@@ -19,7 +19,7 @@ public struct UniqueKey
         _value = id;
     }
 
-    public bool IsValid() => _value > 0;
+    public bool IsEmpty() => _value == 0;
     
     public override string ToString()
     {

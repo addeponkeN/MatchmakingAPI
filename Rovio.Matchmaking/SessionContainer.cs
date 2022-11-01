@@ -161,14 +161,13 @@ public class SessionContainer
 
     public void UpdateCurrentSession()
     {
-        if(_currentMatchmakingSession.MinimumTimeWaited())
+        if(_currentMatchmakingSession.MinimumTimeWaited()
+           && _currentMatchmakingSession.IsReady())
         {
-            if(_currentMatchmakingSession.IsReady())
-            {
-                SetSessionReady(_currentMatchmakingSession);
-                Log.Debug($"Minimum time waited - Starting session with '{_currentMatchmakingSession.Players.Count}' players");
-                GetCurrentSession();
-            }
+            SetSessionReady(_currentMatchmakingSession);
+            Log.Debug(
+                $"Minimum time waited - Starting session with '{_currentMatchmakingSession.Players.Count}' players");
+            GetCurrentSession();
         }
     }
 }

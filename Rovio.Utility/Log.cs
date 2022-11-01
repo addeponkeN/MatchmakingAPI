@@ -5,10 +5,9 @@ public static class Log
     public delegate string DateTimeFormat();
 
     /// <summary>
-    /// Will print a timestamp based on the <see cref="Format"/> delegate
+    /// Prints a timestamp based on the <see cref="Format"/> delegate
     /// </summary>
     public static bool ShowTimestamp = true;
-
     public static bool Enabled = true;
 
     public static DateTimeFormat Format = () => _centralEuTime.ToShortTimeString();

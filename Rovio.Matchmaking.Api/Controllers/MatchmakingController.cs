@@ -36,7 +36,7 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
-    /// Add a single player to the matchmaking queue
+    /// Add a player to the matchmaking queue
     /// </summary>
     /// <param name="token">Server token</param>
     /// <param name="player">Player to add</param>
@@ -54,7 +54,7 @@ public class MatchmakingController : ControllerBase
             return Problem(title: "Invalid player info");
         }
 
-        if(!player.Key.IsValid())
+        if(player.Key.IsEmpty())
         {
             return Problem(title: "Invalid player id/key");
         }
@@ -96,7 +96,7 @@ public class MatchmakingController : ControllerBase
         //  validate all members
         foreach(var p in group.Players)
         {
-            if(!p.Key.IsValid())
+            if(p.Key.IsEmpty())
             {
                 return Problem(title: "Invalid player id/key");
             }
@@ -199,9 +199,7 @@ public class MatchmakingController : ControllerBase
     /// <param name="session">Session to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/sessions/addongoing/{session}")]
-    public ActionResult AddOngoingSession(
-        Guid token,
-        OngoingSessions session)
+    public ActionResult AddOngoingSession(Guid token, OngoingSessions session)
     {
         if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
         {

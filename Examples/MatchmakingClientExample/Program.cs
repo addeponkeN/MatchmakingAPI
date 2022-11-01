@@ -1,7 +1,8 @@
-﻿using Rovio.Matchmaking.Models;
+﻿using Rovio.Matchmaking.Client;
+using Rovio.Matchmaking.Models;
 using Rovio.Utility;
 
-namespace Rovio.Matchmaking.Client
+namespace MatchmakingClientExample
 {
     internal static class Program
     {
