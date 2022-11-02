@@ -142,7 +142,6 @@ public class Matchmaker
             if(!foundValidPlayer)
             {
                 _playersMarkedForRemoval.Remove(player.UniqueId);
-                Log.Debug($"getnextplayer - player marked {player.UniqueId}");
             }
         }
 

@@ -94,7 +94,6 @@ public class MatchmakingSession
         {
             if(AllPlayersReady())
             {
-                Log.Debug("minimum wait time waited");
                 return true;
             }
         }
@@ -117,7 +116,6 @@ public class MatchmakingSession
                 _mm.Settings.manager.ReturnPlayer(player);
                 Players.RemoveAt(i--);
                 ready = false;
-                Log.Debug($"ready - player marked {player.UniqueId}");
             }
         }
 
