@@ -1,26 +1,26 @@
-namespace Rovio.Matchmaking.Api;
+namespace Rovio.Matchmaking.Api.Util;
 
 public static class ModelExtensions
 {
-    public static Player ToMatchmakePlayer(this Models.Player model, MatchmakingManager mm)
+    public static MatchmakingPlayer ToMatchmakePlayer(this Models.Player model, MatchmakingManager mm)
     {
         var player = mm.CreatePlayer();
-        player.Set(model.Key, model.Continent, model.Rank);
+        player.Set(model.UniqueId, model.Continent, model.Rank);
         return player;
     }
 
-    public static Models.Player ToPlayerModel(this Player player)
+    public static Models.Player ToPlayerModel(this MatchmakingPlayer player)
     {
         //  todo - pooling
         return new()
         {
-            Key = player.Key,
+            UniqueId = player.UniqueId,
             Rank = player.Rank,
             Continent = player.Continent
         };
     }
 
-    public static List<Models.Player> ToPlayerModels(this IEnumerable<Player> list)
+    public static List<Models.Player> ToPlayerModels(this IEnumerable<MatchmakingPlayer> list)
     {
         var retList = new List<Models.Player>();
         foreach(var p in list)

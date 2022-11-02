@@ -10,6 +10,7 @@ namespace MatchmakingClientExample
         private static Continents[] _allContinents = Enum.GetValues<Continents>();
 
         private static MatchmakingClient _client;
+        private static List<Player> _players = new();
 
         private static async Task Main(params string[] args)
         {
@@ -35,9 +36,12 @@ namespace MatchmakingClientExample
 
             var chosenService = ConsoleExtended.RequestChoice(
                 "Select Game Server Type",
-                new GameService() {GameName = "Angry Birds", GameServiceId = Guid.Parse("af3c0213-538e-4629-a725-ea56f8a3acec")},
-                new GameService() {GameName = "Bad Piggies", GameServiceId = Guid.Parse("29f7cf48-8657-4849-9b26-9d19d81219f9")},
-                new GameService() {GameName = "World Quest", GameServiceId = Guid.Parse("4c2afede-168c-44b0-a49d-07ed20e6480d")}
+                new GameService()
+                    {GameName = "Angry Birds", GameServiceId = Guid.Parse("af3c0213-538e-4629-a725-ea56f8a3acec")},
+                new GameService()
+                    {GameName = "Bad Piggies", GameServiceId = Guid.Parse("29f7cf48-8657-4849-9b26-9d19d81219f9")},
+                new GameService()
+                    {GameName = "World Quest", GameServiceId = Guid.Parse("4c2afede-168c-44b0-a49d-07ed20e6480d")}
             );
 
             Log.Debug();
@@ -78,6 +82,7 @@ namespace MatchmakingClientExample
                     "Add 10 - 1,000 random players to matchmaking",
                     "Add 1,000 - 100,000 random players to matchmaking",
                     "Add 100,000 - 1,500,000 random players to matchmaking",
+                    "Remove random player from matchmaking",
                     "Add an ongoing session that is missing player(s)",
                     "Get ready sessions",
                     "Get ready sessions and save to file (..\\readysessions.json)",
@@ -105,6 +110,7 @@ namespace MatchmakingClientExample
                         break;
                     }
 
+                    
                     //  ADD RANDOM AMOUNT OF PLAYERS TO MATCHMAKING
                     case 2:
                     {
@@ -120,7 +126,7 @@ namespace MatchmakingClientExample
                     case 3:
                     {
                         int count = Random.Shared.Next(1_000, 100_00);
-                        
+
                         await AddPlayers(count);
 
                         break;
@@ -131,14 +137,36 @@ namespace MatchmakingClientExample
                     case 4:
                     {
                         int count = Random.Shared.Next(100_000, 1_500_000);
-                        
+
                         await AddPlayers(count);
 
                         break;
                     }
 
-                    //  ADD AN ONGOING SESSION TO MATCHMAKING (MISSING PLAYERS)
+
+                    //  REMOVE RANDOM PLAYER FROM MATCHMAKING
                     case 5:
+                    {
+                        if(_players.Count <= 0)
+                        {
+                            Log.Debug("No players");
+                            break;
+                        }
+
+                        var randIndex = Random.Shared.Next(0, _players.Count);
+                        var player = _players[randIndex];
+                        _players.RemoveAt(randIndex);
+
+                        var res = await _client.RemovePlayer(player.UniqueId);
+
+                        Log.Debug(res.StatusCode.ToString());
+
+                        break;
+                    }
+
+                    
+                    //  ADD AN ONGOING SESSION TO MATCHMAKING (MISSING PLAYERS)
+                    case 6:
                     {
                         Continents continent = Continents.EU;
                         int missingPlayerCount = Random.Shared.Next(1, 4);
@@ -163,12 +191,18 @@ namespace MatchmakingClientExample
                         break;
                     }
 
+                    
                     //  GET READY SESSIONS
-                    case 6:
+                    case 7:
                     {
                         var sessions = await _client.GetReadySessions();
 
                         int sessionCount = sessions == null ? 0 : sessions.Sessions.Count();
+
+                        if(sessionCount > 0)
+                        {
+                            // ClearPlayers(sessions.Sessions);
+                        }
 
                         Log.Debug($"Got '{sessionCount}' ready sessions");
                         break;
@@ -176,11 +210,16 @@ namespace MatchmakingClientExample
 
 
                     //  GET READY SESSIONS & SAVE TO FILE (JSON)
-                    case 7:
+                    case 8:
                     {
                         var readySessions = await _client.GetReadySessions();
 
                         int sessionCount = readySessions == null ? 0 : readySessions.Sessions.Count();
+
+                        if(sessionCount > 0)
+                        {
+                            // ClearPlayers(readySessions.Sessions);
+                        }
 
                         string path = Path.Combine(Directory.GetCurrentDirectory(), "readysessions.json");
                         JsonHelper.Save(path, readySessions);
@@ -191,11 +230,16 @@ namespace MatchmakingClientExample
 
 
                     //  GET READY ONGOING SESSIONS
-                    case 8:
+                    case 9:
                     {
-                        var sessions = await _client.GetReadyOngoingSessions();
+                        var ongoingSessions = await _client.GetReadyOngoingSessions();
 
-                        int sessionCount = sessions == null ? 0 : sessions.Sessions.Count();
+                        int sessionCount = ongoingSessions == null ? 0 : ongoingSessions.Sessions.Count();
+
+                        if(sessionCount > 0)
+                        {
+                            // ClearPlayers(ongoingSessions.Sessions);
+                        }
 
                         Log.Debug($"Got '{sessionCount}' ready ongoing sessions");
                         break;
@@ -205,6 +249,17 @@ namespace MatchmakingClientExample
                 Log.Debug("<Enter> to continue");
                 Console.ReadLine();
             }
+        }
+
+        private static void ClearPlayers(IEnumerable<Session> sessions)
+        {
+            foreach(var ses in sessions)
+            foreach(var player in ses.Players)
+                for(int i = 0; i < _players.Count; i++)
+                {
+                    if(player.UniqueId.Equals(_players[i].UniqueId))
+                        _players.RemoveAt(i--);
+                }
         }
 
         private static async Task AddPlayers(int count)
@@ -231,6 +286,10 @@ namespace MatchmakingClientExample
             {
                 Log.Debug($"'{count}' players added to matchmaking!");
             }
+            else
+            {
+                Log.Debug($"{response.StatusCode}");
+            }
         }
 
         private static Player GeneratePlayer()
@@ -244,13 +303,14 @@ namespace MatchmakingClientExample
 
         private static Player CreatePlayer(Continents continent, int rank)
         {
-            var model = new Player()
+            var player = new Player()
             {
-                Key = _idPool++,
+                UniqueId = Guid.NewGuid(),
                 Continent = continent,
                 Rank = rank
             };
-            return model;
+            _players.Add(player);
+            return player;
         }
 
         private static Continents GetRandomContinent()

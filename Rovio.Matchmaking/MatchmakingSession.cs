@@ -15,7 +15,7 @@ public class MatchmakingSession
     /// <summary>
     /// All the players in the session
     /// </summary>
-    public List<Player> Players { get; }
+    public List<MatchmakingPlayer> Players { get; }
 
     /// <summary>
     /// Location of the session
@@ -45,7 +45,7 @@ public class MatchmakingSession
     /// </summary>
     /// <param name="player">Player model</param>
     /// <returns>Returns if adding was a success</returns>
-    public bool AddPlayer(Player player)
+    public bool AddPlayer(MatchmakingPlayer player)
     {
         //  ensure the session cant exceed the max player limit
         if(Players.Count >= _mm.Settings.MaxPlayer)
@@ -74,22 +74,54 @@ public class MatchmakingSession
     /// <returns>Session is ready to start</returns>
     public bool IsReady()
     {
+        //  session added all missing players
         if(MissingPlayersCount > 0 && Players.Count >= MissingPlayersCount)
         {
             return true;
         }
 
+        //  session reached max player count
         if(Players.Count >= _mm.Settings.MaxPlayer)
         {
-            return true;
+            if(AllPlayersReady())
+            {
+                return true;
+            }
         }
 
-        if(Players.Count >= _mm.Settings.MinPlayers && _activeTimer > _mm.Settings.MinimumWaitTime)
+        //  minimum player count and minimum waiting time has been met
+        if(MinimumPlayerCountReached() && _activeTimer > _mm.Settings.MinimumWaitTime)
         {
-            return true;
+            if(AllPlayersReady())
+            {
+                Log.Debug("minimum wait time waited");
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Check if any players has been marked as removed
+    /// </summary>
+    private bool AllPlayersReady()
+    {
+        bool ready = true;
+
+        for(int i = 0; i < Players.Count; i++)
+        {
+            var player = Players[i];
+            if(_mm.IsPlayerMarkedForRemoval(player.UniqueId))
+            {
+                _mm.Settings.manager.ReturnPlayer(player);
+                Players.RemoveAt(i--);
+                ready = false;
+                Log.Debug($"ready - player marked {player.UniqueId}");
+            }
+        }
+
+        return ready;
     }
 
     /// <summary>
@@ -100,8 +132,6 @@ public class MatchmakingSession
         IsStarted = true;
     }
 
-    /// <summary>
-    /// </summary>
     /// <returns>Current player count is above the minimum player count (inclusive)</returns>
     public bool MinimumPlayerCountReached()
     {

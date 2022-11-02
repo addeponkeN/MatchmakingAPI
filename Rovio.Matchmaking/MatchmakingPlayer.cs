@@ -5,14 +5,14 @@ namespace Rovio.Matchmaking;
 /// <summary>
 /// Matchmaking player
 /// </summary>
-public class Player
+public class MatchmakingPlayer
 {
-    internal Player() { }
+    internal MatchmakingPlayer() { }
     
     /// <summary>
     /// Unique id of the player
     /// </summary>
-    public UniqueKey Key { get; internal set; }
+    public Guid UniqueId { get; internal set; }
 
     /// <summary>
     /// The players preferred continent
@@ -24,9 +24,9 @@ public class Player
     /// </summary>
     public int Rank { get; internal set; }
 
-    public void Set(UniqueKey key, Continents continent, int rank)
+    public void Set(Guid id, Continents continent, int rank)
     {
-        Key = key;
+        UniqueId = id;
         Continent = continent;
         Rank = rank;
     }

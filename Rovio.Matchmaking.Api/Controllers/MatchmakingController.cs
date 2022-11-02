@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Rovio.Matchmaking.Api.Repositories;
+using Rovio.Matchmaking.Api.Util;
 using Rovio.Matchmaking.Models;
 using Rovio.Utility;
 
@@ -24,6 +25,11 @@ public class MatchmakingController : ControllerBase
         _serverRepository = serverPepository;
     }
 
+    private bool IsValidated(ref Guid token, out Guid gameServiceId)
+    {
+        return _serverRepository.TryGetGameServiceId(token, out gameServiceId);
+    }
+
     /// <summary>
     /// Returns 1337
     /// </summary>
@@ -42,9 +48,9 @@ public class MatchmakingController : ControllerBase
     /// <param name="player">Player to add</param>
     /// <returns>API result</returns>
     [HttpPost("{token}/players/add/{player}")]
-    public ActionResult AddPlayer(Guid token, Models.Player player)
+    public ActionResult AddPlayer(Guid token, Player player)
     {
-        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        if(!IsValidated(ref token, out var gameServiceId))
         {
             return Problem(title: "Invalid token");
         }
@@ -54,7 +60,7 @@ public class MatchmakingController : ControllerBase
             return Problem(title: "Invalid player info");
         }
 
-        if(player.Key.IsEmpty())
+        if(player.UniqueId == Guid.Empty)
         {
             return Problem(title: "Invalid player id/key");
         }
@@ -83,7 +89,7 @@ public class MatchmakingController : ControllerBase
     [HttpPost("{token}/players/addrange/{group}")]
     public ActionResult AddPlayers(Guid token, PlayerGroup group)
     {
-        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        if(!IsValidated(ref token, out var gameServiceId))
         {
             return Problem(title: "Invalid token");
         }
@@ -94,14 +100,14 @@ public class MatchmakingController : ControllerBase
         }
 
         //  validate all members
-        foreach(var p in group.Players)
+        foreach(var player in group.Players)
         {
-            if(p.Key.IsEmpty())
+            if(player.UniqueId == Guid.Empty)
             {
                 return Problem(title: "Invalid player id/key");
             }
 
-            if(p.Continent == Continents.None)
+            if(player.Continent == Continents.None)
             {
                 return Problem(title: "Invalid player continent");
             }
@@ -122,6 +128,30 @@ public class MatchmakingController : ControllerBase
     }
 
     /// <summary>
+    /// Remove a player from matchmaking
+    /// </summary>
+    /// <param name="token">Server token</param>
+    /// <param name="playerId">Player id</param>
+    /// <returns>API result</returns>
+    [HttpPost("{token}/players/remove/{playerId}")]
+    public ActionResult RemovePlayer(Guid token, Guid playerId)
+    {
+        if(!IsValidated(ref token, out var gameServiceId))
+        {
+            return Problem(title: "Invalid token");
+        }
+
+        if(!_manager.TryGetMatchmaker(gameServiceId, out var matchmaker))
+        {
+            return Problem(title: "Internal matchmaking error");
+        }
+
+        matchmaker.RemovePlayer(playerId);
+
+        return Ok();
+    }
+
+    /// <summary>
     /// Get all ready sessions.
     /// </summary>
     /// <param name="token">Server token</param>
@@ -130,7 +160,7 @@ public class MatchmakingController : ControllerBase
     [HttpGet("{token}/sessions/{continent}")]
     public ActionResult<ReadySessions> GetReadySessions(Guid token, Continents continent)
     {
-        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        if(!IsValidated(ref token, out var gameServiceId))
         {
             return Problem(title: "Invalid token");
         }
@@ -162,7 +192,7 @@ public class MatchmakingController : ControllerBase
     [HttpGet("{token}/sessions/ongoing/{continent}")]
     public ActionResult<ReadyOngoingSession> GetReadyOngoingSessions(Guid token, Continents continent)
     {
-        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        if(!IsValidated(ref token, out var gameServiceId))
         {
             return Problem(title: "Invalid token");
         }
@@ -201,7 +231,7 @@ public class MatchmakingController : ControllerBase
     [HttpPost("{token}/sessions/addongoing/{session}")]
     public ActionResult AddOngoingSession(Guid token, OngoingSessions session)
     {
-        if(!_serverRepository.TryGetGameServiceId(token, out Guid gameServiceId))
+        if(!IsValidated(ref token, out var gameServiceId))
         {
             return Problem(title: "Invalid token");
         }

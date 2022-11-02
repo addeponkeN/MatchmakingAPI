@@ -36,7 +36,7 @@ public class SessionContainer
     public MatchmakingSession GetNewSession(bool ignoreOngoingSessions = false)
     {
         MatchmakingSession matchmakingSession;
-
+        
         if(!ignoreOngoingSessions && _ongoingSessions.Count > 0)
         {
             matchmakingSession = _ongoingSessions.Dequeue();

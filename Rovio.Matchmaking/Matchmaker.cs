@@ -18,11 +18,12 @@ public class Matchmaker
     /// <summary>
     /// Generates id's to newly created sessions
     /// </summary>
-    private IdGenerator _idGenerator;
+    private IdGenerator _idGenerator = new();
 
-    private Dictionary<Continents, SessionContainer> _containers;
-    private List<SessionContainer> _containerList;
-    private Queue<Player> _players;
+    private Dictionary<Continents, SessionContainer> _containers = new();
+    private List<SessionContainer> _containerList = new();
+    private Queue<MatchmakingPlayer> _players = new();
+    private HashSet<Guid> _playersMarkedForRemoval = new();
 
     private object _queueLocker = new();
 
@@ -34,10 +35,6 @@ public class Matchmaker
     {
         GameServiceId = gameServiceId;
         Settings = settings;
-        _players = new Queue<Player>();
-        _idGenerator = new IdGenerator();
-        _containers = new();
-        _containerList = new();
 
         AddContainers();
     }
@@ -79,12 +76,29 @@ public class Matchmaker
     /// Add a player to the matchmaker
     /// </summary>
     /// <param name="player">Player to add</param>
-    public void AddPlayer(Player player)
+    public void AddPlayer(MatchmakingPlayer player)
     {
         lock(_queueLocker)
         {
             _players.Enqueue(player);
         }
+    }
+
+    /// <summary>
+    /// Remove a player from matchmaking by id
+    /// </summary>
+    /// <param name="playerId"></param>
+    public void RemovePlayer(Guid playerId)
+    {
+        //  check if player already has been marked for removal
+        if(_playersMarkedForRemoval.Contains(playerId))
+        {
+            return;
+        }
+
+        Log.Debug($"remove palyer: {playerId}");
+            
+        _playersMarkedForRemoval.Add(playerId);
     }
 
     /// <summary>
@@ -109,6 +123,35 @@ public class Matchmaker
         var container = GetContainer(continent);
         var sessions = container.PopReadyOngoingSessions(serverToken);
         return sessions;
+    }
+
+    /// <summary>
+    /// Get the next valid player in the queue
+    /// </summary>
+    /// <returns>First player in the queue</returns>
+    private MatchmakingPlayer? GetNextPlayer()
+    {
+        MatchmakingPlayer? player = null;
+
+        bool foundValidPlayer = false;
+
+        while(!foundValidPlayer && _players.Count > 0)
+        {
+            player = _players.Dequeue();
+            foundValidPlayer = !_playersMarkedForRemoval.Contains(player.UniqueId);
+            if(!foundValidPlayer)
+            {
+                _playersMarkedForRemoval.Remove(player.UniqueId);
+                Log.Debug($"getnextplayer - player marked {player.UniqueId}");
+            }
+        }
+
+        return player;
+    }
+
+    internal bool IsPlayerMarkedForRemoval(Guid id)
+    {
+        return _playersMarkedForRemoval.Contains(id);
     }
 
     /// <summary>
@@ -162,13 +205,16 @@ public class Matchmaker
 
         for(int i = 0; i < length; i++)
         {
-            Player player;
+            MatchmakingPlayer? player;
 
             lock(_queueLocker)
             {
                 // matchmake next player
-                player = _players.Dequeue();
+                player = GetNextPlayer();
             }
+
+            if(player == null)
+                break;
 
             //  get session container by the player's preferred continent
             //  add the player to the current session.

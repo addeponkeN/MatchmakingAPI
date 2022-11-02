@@ -105,6 +105,20 @@ public class MatchmakingClient
             $"{_matchmakingRoute}{_validatedServer.ServerId}/players/addrange/{groupModel}", groupModel);
     }
 
+    public async Task<HttpResponseMessage> RemovePlayer(Guid playerId)
+    {
+        if(!IsValidated)
+        {
+            Log.Warning("Not validated");
+            return null;
+        }
+
+        Log.Debug($"remove palyer: {playerId}");
+        
+        return await _client.PostAsJsonAsync(
+            $"{_matchmakingRoute}{_validatedServer.ServerId}/players/remove/{playerId}", playerId);
+    }
+
     /// <summary>
     /// Get all ready matches 
     /// </summary>

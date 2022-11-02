@@ -22,7 +22,7 @@ public class Program
         matchmakingManager = new();
 
 #if RELEASE
-        Log.Enabled = false;
+        // Log.Enabled = false;
 #endif
         BuildApplication(args);
         SetupApplication();

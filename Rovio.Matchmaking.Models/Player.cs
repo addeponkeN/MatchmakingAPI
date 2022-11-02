@@ -20,7 +20,8 @@ public record Player
     /// </summary>
     [Required]
     [JsonPropertyName(PropertyAbbreviations.UniqueKey)]
-    public UniqueKey Key { get; init; }
+    public Guid UniqueId { get; set; }
+    // public UniqueKey Key { get; init; }
     
     /// <summary>
     /// The preferred continent of the player
