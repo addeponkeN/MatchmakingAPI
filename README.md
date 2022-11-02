@@ -1,6 +1,7 @@
 # Matchmaking API
 
-![image](https://user-images.githubusercontent.com/17746816/197415960-9c9f6270-f600-46d0-8f32-46514ebd9b48.png)
+![image](https://user-images.githubusercontent.com/17746816/199473072-dbff4558-a468-49ca-a09c-38ceb4bcb9e4.png)
+
 
 
 
@@ -26,6 +27,6 @@
 .
 .
 
-## Early Prototype Programmer Art Diagram :D
+## Early Prototype Programmer Art Diagram
 
 ![early prototype diagram](https://user-images.githubusercontent.com/17746816/197418742-647a11e6-1ca4-4763-993f-ae68476cb3b9.png)
